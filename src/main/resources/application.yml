@@ -1,0 +1,23 @@
+spring:
+  application:
+    name:
+      clinic-application
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/clinic
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+okta:
+  oauth2:
+    audience: http://localhost:8000
+    issuer: https://dev-otpcf3cma032xews.us.auth0.com/
+
+server:
+  port: 8000
