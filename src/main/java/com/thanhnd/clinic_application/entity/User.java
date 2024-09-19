@@ -1,7 +1,7 @@
 package com.thanhnd.clinic_application.entity;
 
-import com.thanhnd.clinic_application.constants.Role;
-import com.thanhnd.clinic_application.constants.UserGender;
+import com.thanhnd.clinic_application.common.constants.Role;
+import com.thanhnd.clinic_application.common.constants.UserGender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +33,8 @@ public class User extends BaseEntity {
 	@OneToOne
 	@JoinColumn(name = "address_id", referencedColumnName = "id")
 	private Address address;
+
+	@OneToOne
+	@JoinColumn(name = "doctor_information_id", referencedColumnName = "id")
+	private DoctorInformation doctorInformation;
 }

@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.configuration;
 
+import com.thanhnd.clinic_application.filter.AuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -16,13 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthorizationFilter authorizationFilter) throws Exception {
 		http.authorizeHttpRequests(auth ->
-				auth
-					.requestMatchers("/public/**").permitAll()
-					.requestMatchers("/private/**").authenticated()
-					.requestMatchers("/private-doctor").hasAuthority("read:users")
-					.anyRequest().denyAll()
+				auth.anyRequest().authenticated()
 			)
 			.cors(Customizer.withDefaults())
 			.oauth2ResourceServer(oauth2 ->
@@ -30,7 +27,8 @@ public class SecurityConfiguration {
 					jwt.jwtAuthenticationConverter(authenticationConverter())
 				)
 			)
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.addFilterAfter(authorizationFilter, org.springframework.security.web.access.intercept.AuthorizationFilter.class);
 
 		return http.build();
 	}

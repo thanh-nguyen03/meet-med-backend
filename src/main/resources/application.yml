@@ -14,10 +14,20 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+
 okta:
   oauth2:
     audience: http://localhost:8000
     issuer: https://dev-otpcf3cma032xews.us.auth0.com/
 
+logging:
+  level:
+    com:
+      thanhnd: error
+    root: info
+
 server:
+  error:
+    whitelabel:
+      enabled: false
   port: 8000
