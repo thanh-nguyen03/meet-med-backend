@@ -1,8 +1,8 @@
 package com.thanhnd.clinic_application.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.thanhnd.clinic_application.common.constants.Message;
 import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.constants.Message;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,9 @@
 package com.thanhnd.clinic_application.modules.users.dto;
 
-import com.thanhnd.clinic_application.common.constants.Role;
-import com.thanhnd.clinic_application.common.constants.UserGender;
-import com.thanhnd.clinic_application.common.constants.ValidationMessage;
 import com.thanhnd.clinic_application.common.dto.BaseDto;
-import com.thanhnd.clinic_application.entity.Address;
+import com.thanhnd.clinic_application.constants.Role;
+import com.thanhnd.clinic_application.constants.UserGender;
+import com.thanhnd.clinic_application.constants.ValidationMessage;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -28,5 +27,4 @@ public class UserDto extends BaseDto {
 	private String phone;
 	private UserGender gender;
 	private Role role;
-	private Address address;
 }

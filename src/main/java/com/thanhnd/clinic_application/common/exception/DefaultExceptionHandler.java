@@ -1,7 +1,7 @@
 package com.thanhnd.clinic_application.common.exception;
 
-import com.thanhnd.clinic_application.common.constants.Message;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
+import com.thanhnd.clinic_application.constants.Message;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

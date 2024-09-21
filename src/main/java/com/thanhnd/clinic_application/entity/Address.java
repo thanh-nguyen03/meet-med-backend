@@ -23,7 +23,4 @@ public class Address extends BaseEntity {
 
 	private String city;
 	private String country;
-
-	@OneToOne(mappedBy = "address")
-	private User user;
 }

@@ -11,18 +11,18 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Entity
-@Table(name = "tbl_categories")
-public class Categories extends BaseEntity {
+@Table(name = "tbl_department")
+public class Department extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String name;
 
 	@Column(nullable = false)
 	private String description;
 
-	@ManyToMany(mappedBy = "categories")
-	private List<DoctorInformation> doctors;
+	@OneToMany(mappedBy = "department")
+	private List<Doctor> doctors;
 }

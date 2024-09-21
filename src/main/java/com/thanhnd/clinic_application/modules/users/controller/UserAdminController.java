@@ -1,19 +1,21 @@
 package com.thanhnd.clinic_application.modules.users.controller;
 
 import com.thanhnd.clinic_application.annotation.PermissionsAllowed;
-import com.thanhnd.clinic_application.common.constants.Permissions;
 import com.thanhnd.clinic_application.common.controller.BaseController;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
+import com.thanhnd.clinic_application.constants.ControllerPath;
+import com.thanhnd.clinic_application.constants.Permissions;
 import com.thanhnd.clinic_application.modules.users.dto.CreateUserDto;
 import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import com.thanhnd.clinic_application.modules.users.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/user")
+@RequestMapping(ControllerPath.USER_ADMIN_CONTROLLER)
 public class UserAdminController extends BaseController {
 	private final UserService userService;
 
@@ -31,13 +33,13 @@ public class UserAdminController extends BaseController {
 
 	@PostMapping
 	@PermissionsAllowed(Permissions.Users.WRITE)
-	public ResponseEntity<ResponseDto> create(@RequestBody CreateUserDto createUserDto) {
+	public ResponseEntity<ResponseDto> create(@RequestBody @Valid CreateUserDto createUserDto) {
 		return createSuccessResponse(ResponseDto.success(userService.create(createUserDto)));
 	}
 
 	@PutMapping("/{id}")
 	@PermissionsAllowed(Permissions.Users.WRITE)
-	public ResponseEntity<ResponseDto> update(@PathVariable String id, @RequestBody UserDto userDto) {
+	public ResponseEntity<ResponseDto> update(@PathVariable String id, @RequestBody @Valid UserDto userDto) {
 		return createSuccessResponse(ResponseDto.success(userService.update(id, userDto)));
 	}
 

@@ -1,7 +1,7 @@
 package com.thanhnd.clinic_application.modules.users.service.impl;
 
-import com.thanhnd.clinic_application.common.constants.Message;
 import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.User;
 import com.thanhnd.clinic_application.modules.users.dto.CreateUserDto;
 import com.thanhnd.clinic_application.modules.users.dto.UserDto;
@@ -25,7 +25,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto findById(String id) {
-		User user = userRepository.findById(id).orElseThrow(() -> HttpException.notFound(Message.USER_ID_NOT_FOUND.getMessage(id)));
+		User user = userRepository.findById(id).orElseThrow(() -> HttpException.notFound(Message.USER_NOT_FOUND.getMessage()));
+
+		return modelMapper.map(user, UserDto.class);
+	}
+
+	@Override
+	public UserDto findByEmail(String email) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> HttpException.notFound(Message.USER_NOT_FOUND.getMessage()));
 
 		return modelMapper.map(user, UserDto.class);
 	}
@@ -51,7 +59,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto update(String id, UserDto userDto) {
 		User existingUser = userRepository.findById(id)
-			.orElseThrow(() -> HttpException.badRequest(Message.USER_ID_NOT_FOUND.getMessage(id)));
+			.orElseThrow(() -> HttpException.badRequest(Message.USER_NOT_FOUND.getMessage()));
 
 		modelMapper.map(userDto, existingUser);
 
@@ -61,7 +69,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void delete(String id) {
 		User ExistingUser = userRepository.findById(id)
-			.orElseThrow(() -> HttpException.badRequest(Message.USER_ID_NOT_FOUND.getMessage(id)));
+			.orElseThrow(() -> HttpException.badRequest(Message.USER_NOT_FOUND.getMessage()));
 
 		userRepository.delete(ExistingUser);
 	}

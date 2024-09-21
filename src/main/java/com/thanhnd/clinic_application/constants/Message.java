@@ -1,4 +1,4 @@
-package com.thanhnd.clinic_application.common.constants;
+package com.thanhnd.clinic_application.constants;
 
 public enum Message {
 	// Common
@@ -7,9 +7,16 @@ public enum Message {
 	PERMISSION_DENIED("You do not have permission to access this resource!"),
 
 	// Users
-	USER_ID_NOT_FOUND("User with id %s not found"),
+	USER_NOT_FOUND("User not found"),
 	USER_EMAIL_NOT_FOUND("User with email %s not found"),
-	USER_EMAIL_ALREADY_EXISTS("User with email %s already exists");
+	USER_EMAIL_ALREADY_EXISTS("User with email %s already exists"),
+
+	// Doctor
+	DOCTOR_NOT_FOUND("Doctor not found"),
+
+	// Department
+	DEPARTMENT_NOT_FOUND("Department not found"),
+	DEPARTMENT_NAME_ALREADY_EXISTS("Department with name %s already exists");
 
 	private final String message;
 

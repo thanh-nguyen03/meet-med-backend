@@ -8,6 +8,8 @@ import java.util.List;
 public interface UserService {
 	UserDto findById(String id);
 
+	UserDto findByEmail(String email);
+
 	List<UserDto> findAll();
 
 	UserDto create(CreateUserDto createUserDto);

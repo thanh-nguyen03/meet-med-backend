@@ -1,9 +1,9 @@
 package com.thanhnd.clinic_application.filter;
 
 import com.thanhnd.clinic_application.annotation.PermissionsAllowed;
-import com.thanhnd.clinic_application.common.constants.Message;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
+import com.thanhnd.clinic_application.constants.Message;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,7 +1,7 @@
 package com.thanhnd.clinic_application.common.service.impl;
 
-import com.thanhnd.clinic_application.common.constants.JwtConstants;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
+import com.thanhnd.clinic_application.constants.JwtConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
