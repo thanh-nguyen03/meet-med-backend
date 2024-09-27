@@ -19,31 +19,31 @@ public class DepartmentAdminController extends BaseController {
 	private final DepartmentService departmentService;
 
 	@GetMapping
-	@PermissionsAllowed(Permissions.Categories.READ)
+	@PermissionsAllowed(Permissions.Departments.READ)
 	public ResponseEntity<ResponseDto> findAll() {
 		return createSuccessResponse(ResponseDto.success(departmentService.findAll()));
 	}
 
 	@GetMapping("/{id}")
-	@PermissionsAllowed(Permissions.Categories.READ)
+	@PermissionsAllowed(Permissions.Departments.READ)
 	public ResponseEntity<ResponseDto> findById(@PathVariable String id) {
 		return createSuccessResponse(ResponseDto.success(departmentService.findById(id)));
 	}
 
 	@PostMapping
-	@PermissionsAllowed(Permissions.Categories.WRITE)
+	@PermissionsAllowed(Permissions.Departments.WRITE)
 	public ResponseEntity<ResponseDto> create(@RequestBody @Valid DepartmentDto departmentDto) {
 		return createSuccessResponse(ResponseDto.success(departmentService.create(departmentDto)));
 	}
 
 	@PutMapping("/{id}")
-	@PermissionsAllowed(Permissions.Categories.WRITE)
+	@PermissionsAllowed(Permissions.Departments.WRITE)
 	public ResponseEntity<ResponseDto> update(@PathVariable String id, @RequestBody @Valid DepartmentDto departmentDto) {
 		return createSuccessResponse(ResponseDto.success(departmentService.update(id, departmentDto)));
 	}
 
 	@DeleteMapping("/{id}")
-	@PermissionsAllowed(Permissions.Categories.WRITE)
+	@PermissionsAllowed(Permissions.Departments.WRITE)
 	public ResponseEntity<ResponseDto> delete(@PathVariable String id) {
 		departmentService.delete(id);
 		return createSuccessResponse(ResponseDto.success());

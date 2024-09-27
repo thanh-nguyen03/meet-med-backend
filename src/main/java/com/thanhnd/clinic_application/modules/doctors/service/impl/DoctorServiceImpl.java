@@ -1,0 +1,101 @@
+package com.thanhnd.clinic_application.modules.doctors.service.impl;
+
+import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.constants.Message;
+import com.thanhnd.clinic_application.constants.Role;
+import com.thanhnd.clinic_application.entity.Department;
+import com.thanhnd.clinic_application.entity.Doctor;
+import com.thanhnd.clinic_application.entity.User;
+import com.thanhnd.clinic_application.modules.departments.repository.DepartmentRepository;
+import com.thanhnd.clinic_application.modules.doctors.dto.CreateDoctorDto;
+import com.thanhnd.clinic_application.modules.doctors.dto.DoctorDto;
+import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
+import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
+import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
+import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class DoctorServiceImpl implements DoctorService {
+	private final UserRepository userRepository;
+	private final DoctorRepository doctorRepository;
+	private final DepartmentRepository departmentRepository;
+	private final ModelMapper modelMapper;
+
+	@Override
+	public List<DoctorDto> findAll() {
+		return doctorRepository.findAll()
+			.stream()
+			.map((element) -> modelMapper.map(element, DoctorDto.class))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public DoctorDto findById(String id) {
+		return doctorRepository.findById(id)
+			.map((element) -> modelMapper.map(element, DoctorDto.class))
+			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
+	}
+
+	@Override
+	public DoctorDto create(CreateDoctorDto createDoctorDto) {
+		Optional<User> existing = userRepository.findByEmail(createDoctorDto.getEmail());
+
+		if (existing.isPresent()) {
+			throw HttpException.badRequest(Message.USER_EMAIL_ALREADY_EXISTS.getMessage(createDoctorDto.getEmail()));
+		}
+
+		Department department = departmentRepository.findById(createDoctorDto.getDepartmentId())
+			.orElseThrow(() -> HttpException.notFound(Message.DEPARTMENT_NOT_FOUND.getMessage()));
+
+		User user = new User();
+		user.setEmail(createDoctorDto.getEmail());
+		user.setFullName(createDoctorDto.getFullName());
+		user.setGender(createDoctorDto.getGender());
+		user.setRole(Role.Doctor);
+
+		User savedUser = userRepository.save(user);
+
+		Doctor doctor = new Doctor();
+		doctor.setYearsOfExperience(createDoctorDto.getYearsOfExperience());
+		doctor.setDegree(createDoctorDto.getDegree());
+		doctor.setDescription(createDoctorDto.getDescription());
+		doctor.setUser(savedUser);
+		doctor.setDepartment(department);
+
+		return modelMapper.map(doctorRepository.save(doctor), DoctorDto.class);
+	}
+
+	@Override
+	public DoctorDto update(String id, UpdateDoctorDto updateDoctorDto) {
+		Doctor doctor = this.doctorRepository.findById(id)
+			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
+
+		Department department = this.departmentRepository.findById(updateDoctorDto.getDepartmentId())
+			.orElseThrow(() -> HttpException.notFound(Message.DEPARTMENT_NOT_FOUND.getMessage()));
+
+		doctor.setYearsOfExperience(updateDoctorDto.getYearsOfExperience());
+		doctor.setDegree(updateDoctorDto.getDegree());
+		doctor.setDescription(updateDoctorDto.getDescription());
+		doctor.setDepartment(department);
+
+		return modelMapper.map(doctorRepository.save(doctor), DoctorDto.class);
+	}
+
+	@Override
+	public void delete(String id) {
+		Doctor doctor = doctorRepository.findById(id)
+			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
+
+		doctorRepository.delete(doctor);
+	}
+}

@@ -30,6 +30,6 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private Role role = Role.User;
 
-	@OneToOne(mappedBy = "user")
+	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private Doctor doctor;
 }

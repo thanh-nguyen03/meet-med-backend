@@ -6,6 +6,10 @@ public class ValidationMessage {
 	public static final String EMAIL_INVALID = "Email address is invalid";
 	public static final String EMAIL_REQUIRED = "Email address is required";
 
+	// Password
+	public static final String PASSWORD_REQUIRED = "Password is required";
+	public static final String PASSWORD_LENGTH = "Password length must be at least 6 characters";
+
 	// Full name
 	public static final String FULL_NAME_LENGTH = "Full name length must be between 3 and 50 characters";
 	public static final String FULL_NAME_REQUIRED = "Full name is required";
@@ -19,6 +23,7 @@ public class ValidationMessage {
 	public static final String DOCTOR_DEGREE_REQUIRED = "Doctor's degree is required";
 
 	// Description
+	public static final String DOCTOR_DESCRIPTION_REQUIRED = "Doctor's description is required";
 	public static final String DOCTOR_DESCRIPTION_LENGTH = "Doctor's description length must not exceed 2000 characters";
 
 	// Department

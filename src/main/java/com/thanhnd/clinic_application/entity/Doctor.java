@@ -17,9 +17,11 @@ public class Doctor extends BaseEntity {
 
 	private Integer yearsOfExperience;
 	private String degree;
+
+	@Column(length = 2000)
 	private String description;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private User user;
 
