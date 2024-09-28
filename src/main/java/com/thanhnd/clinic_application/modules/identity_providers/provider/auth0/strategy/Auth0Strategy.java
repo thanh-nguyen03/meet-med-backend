@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.modules.identity_providers.provider.auth0.strategy;
 
+import com.thanhnd.clinic_application.common.exception.Auth0Exception;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.modules.identity_providers.interfaces.IdentityProviderStrategy;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,15 +56,13 @@ public class Auth0Strategy extends IdentityProviderStrategy {
 			if (response.getStatusCode().is2xxSuccessful()) {
 				return response.getBody();
 			}
-		} catch (HttpClientErrorException e) {
-			// Handle client-side HTTP errors (4xx)
-			throw HttpException.badRequest(e.getMessage());
-		} catch (HttpServerErrorException e) {
-			// Handle server-side HTTP errors (5xx)
-			throw HttpException.internalServerError(e.getMessage());
 		} catch (RestClientException e) {
-			// Handle general errors (e.g., network issues, invalid responses)
-			throw HttpException.internalServerError(e.getMessage());
+			Auth0Exception auth0Exception = Auth0Exception.fromJson(e.getMessage());
+			if (auth0Exception.getStatusCode().is4xxClientError()) {
+				throw HttpException.badRequest(auth0Exception.getMessage());
+			} else {
+				throw HttpException.internalServerError(auth0Exception.getMessage());
+			}
 		}
 
 		return null;

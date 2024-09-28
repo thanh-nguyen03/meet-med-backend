@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.modules.identity_providers.provider.auth0.service.impl;
 
+import com.thanhnd.clinic_application.common.exception.Auth0Exception;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.modules.identity_providers.provider.auth0.service.Auth0Service;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -58,12 +57,13 @@ public class Auth0ServiceImpl implements Auth0Service {
 			} else {
 				throw new Exception("Failed to obtain Auth0 access token. Status code: " + response.getStatusCode());
 			}
-		} catch (HttpClientErrorException e) {
-			throw HttpException.badRequest(e.getResponseBodyAsString());
-		} catch (RestClientException e) {
-			throw HttpException.internalServerError("An error occurred while trying to connect to Auth0: " + e.getMessage());
 		} catch (Exception e) {
-			throw HttpException.internalServerError("An error occurred while trying to obtain Auth0 access token: " + e.getMessage());
+			Auth0Exception auth0Exception = Auth0Exception.fromJson(e.getMessage());
+			if (auth0Exception.getStatusCode().is4xxClientError()) {
+				throw HttpException.badRequest(auth0Exception.getMessage());
+			} else {
+				throw HttpException.internalServerError(auth0Exception.getMessage());
+			}
 		}
 	}
 }
