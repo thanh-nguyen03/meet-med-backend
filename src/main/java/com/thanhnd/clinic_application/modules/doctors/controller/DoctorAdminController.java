@@ -10,6 +10,7 @@ import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.identity_providers.IdentityProviderStrategyFactory;
 import com.thanhnd.clinic_application.modules.identity_providers.interfaces.IdentityProviderStrategy;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ public class DoctorAdminController {
 		return ResponseEntity.ok(ResponseDto.success(doctorService.findById(id)));
 	}
 
+	@Transactional
 	@PostMapping
 	@PermissionsAllowed(Permissions.Doctors.WRITE)
 	public ResponseEntity<ResponseDto> create(@RequestBody @Valid CreateDoctorDto createDoctorDto) {
@@ -51,7 +53,6 @@ public class DoctorAdminController {
 		// Create user in identity provider
 		strategy.createUser(createDoctorDto.getEmail(), createDoctorDto.getPassword());
 
-
 		return ResponseEntity.ok(ResponseDto.success(doctorDto));
 	}
 
@@ -64,6 +65,7 @@ public class DoctorAdminController {
 		return ResponseEntity.ok(ResponseDto.success(doctorService.update(id, updateDoctorDto)));
 	}
 
+	@Transactional
 	@DeleteMapping("/{id}")
 	@PermissionsAllowed(
 		permissions = {Permissions.Users.DELETE, Permissions.Doctors.WRITE},
