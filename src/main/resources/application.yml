@@ -4,9 +4,7 @@ spring:
       clinic-application
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/clinic
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://ep-rough-wave-a14ilngl.ap-southeast-1.aws.neon.tech/meet_med_db?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require
     driver-class-name: org.postgresql.Driver
   jpa:
     database: postgresql

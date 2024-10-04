@@ -4,12 +4,12 @@ import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.Department;
 import com.thanhnd.clinic_application.helper.StringHelper;
+import com.thanhnd.clinic_application.mapper.DepartmentMapper;
 import com.thanhnd.clinic_application.modules.departments.dto.DepartmentDto;
 import com.thanhnd.clinic_application.modules.departments.repository.DepartmentRepository;
 import com.thanhnd.clinic_application.modules.departments.service.DepartmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,20 +21,20 @@ import java.util.stream.Collectors;
 @Transactional
 public class DepartmentServiceImpl implements DepartmentService {
 	private final DepartmentRepository departmentRepository;
-	private final ModelMapper modelMapper;
+	private final DepartmentMapper departmentMapper;
 
 	@Override
 	public List<DepartmentDto> findAll() {
 		return departmentRepository.findAll()
 			.stream()
-			.map((element) -> modelMapper.map(element, DepartmentDto.class))
+			.map(departmentMapper::toDto)
 			.collect(Collectors.toList());
 	}
 
 	@Override
 	public DepartmentDto findById(String id) {
 		return departmentRepository.findById(id)
-			.map((element) -> modelMapper.map(element, DepartmentDto.class))
+			.map(departmentMapper::toDto)
 			.orElseThrow(() -> HttpException.notFound(Message.DEPARTMENT_NOT_FOUND.getMessage()));
 	}
 
@@ -47,10 +47,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 		}
 
 		Department department = new Department();
-		department.setName(StringHelper.totTitleCase(departmentDto.getName()));
+		department.setName(StringHelper.toTitleCase(departmentDto.getName()));
 		department.setDescription(departmentDto.getDescription().trim());
 
-		return modelMapper.map(departmentRepository.save(department), DepartmentDto.class);
+		return departmentMapper.toDto(departmentRepository.save(department));
 	}
 
 	@Override
@@ -58,10 +58,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 		Department existingDepartment = departmentRepository.findById(id)
 			.orElseThrow(() -> HttpException.badRequest(Message.DEPARTMENT_NOT_FOUND.getMessage()));
 
-		existingDepartment.setName(StringHelper.totTitleCase(departmentDto.getName()));
+		existingDepartment.setName(StringHelper.toTitleCase(departmentDto.getName()));
 		existingDepartment.setDescription(departmentDto.getDescription().trim());
 
-		return modelMapper.map(departmentRepository.save(existingDepartment), DepartmentDto.class);
+		return departmentMapper.toDto(departmentRepository.save(existingDepartment));
 	}
 
 	@Override

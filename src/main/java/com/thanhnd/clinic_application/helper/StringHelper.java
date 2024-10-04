@@ -1,7 +1,7 @@
 package com.thanhnd.clinic_application.helper;
 
 public class StringHelper {
-	public static String totTitleCase(String input) {
+	public static String toTitleCase(String input) {
 		if (input == null || input.isEmpty()) {
 			return input;
 		}

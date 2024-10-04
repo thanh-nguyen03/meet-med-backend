@@ -6,6 +6,7 @@ import com.thanhnd.clinic_application.constants.Role;
 import com.thanhnd.clinic_application.entity.Department;
 import com.thanhnd.clinic_application.entity.Doctor;
 import com.thanhnd.clinic_application.entity.User;
+import com.thanhnd.clinic_application.mapper.DoctorMapper;
 import com.thanhnd.clinic_application.modules.departments.repository.DepartmentRepository;
 import com.thanhnd.clinic_application.modules.doctors.dto.CreateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.DoctorDto;
@@ -15,7 +16,6 @@ import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,20 +29,20 @@ public class DoctorServiceImpl implements DoctorService {
 	private final UserRepository userRepository;
 	private final DoctorRepository doctorRepository;
 	private final DepartmentRepository departmentRepository;
-	private final ModelMapper modelMapper;
+	private final DoctorMapper doctorMapper;
 
 	@Override
 	public List<DoctorDto> findAll() {
 		return doctorRepository.findAll()
 			.stream()
-			.map((element) -> modelMapper.map(element, DoctorDto.class))
+			.map(doctorMapper::toDto)
 			.collect(Collectors.toList());
 	}
 
 	@Override
 	public DoctorDto findById(String id) {
 		return doctorRepository.findById(id)
-			.map((element) -> modelMapper.map(element, DoctorDto.class))
+			.map(doctorMapper::toDto)
 			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
 	}
 
@@ -72,7 +72,7 @@ public class DoctorServiceImpl implements DoctorService {
 		doctor.setUser(savedUser);
 		doctor.setDepartment(department);
 
-		return modelMapper.map(doctorRepository.save(doctor), DoctorDto.class);
+		return doctorMapper.toDto(doctorRepository.save(doctor));
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class DoctorServiceImpl implements DoctorService {
 		doctor.setDescription(updateDoctorDto.getDescription());
 		doctor.setDepartment(department);
 
-		return modelMapper.map(doctorRepository.save(doctor), DoctorDto.class);
+		return doctorMapper.toDto(doctorRepository.save(doctor));
 	}
 
 	@Override
