@@ -33,6 +33,16 @@ public class MockStrategy extends IdentityProviderStrategy {
 	}
 
 	@Override
+	public String resetUserPassword(Map<String, Object> user) {
+		return "User password changed in mock system";
+	}
+
+	@Override
+	public String assignRole(Map<String, Object> user, String role) {
+		return null;
+	}
+
+	@Override
 	public String getUserIdKey() {
 		return "user_id";
 	}

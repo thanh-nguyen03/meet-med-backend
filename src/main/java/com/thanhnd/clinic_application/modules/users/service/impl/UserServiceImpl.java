@@ -4,7 +4,6 @@ import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.User;
 import com.thanhnd.clinic_application.mapper.UserMapper;
-import com.thanhnd.clinic_application.modules.users.dto.CreateUserDto;
 import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import com.thanhnd.clinic_application.modules.users.service.UserService;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,23 +38,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDto> findAll() {
-		return userRepository.findAll()
-			.stream()
+		return userRepository.findAll().stream()
 			.map(userMapper::toDto)
 			.collect(Collectors.toList());
-	}
-
-	@Override
-	public UserDto create(CreateUserDto createUserDto) {
-		Optional<User> existingUser = userRepository.findByEmail(createUserDto.getEmail());
-
-		if (existingUser.isPresent()) {
-			throw HttpException.badRequest(Message.USER_EMAIL_ALREADY_EXISTS.getMessage(createUserDto.getEmail()));
-		}
-
-		User user = userMapper.create(createUserDto);
-
-		return userMapper.toDto(userRepository.save(user));
 	}
 
 	@Override
@@ -64,7 +48,10 @@ public class UserServiceImpl implements UserService {
 		User existingUser = userRepository.findById(id)
 			.orElseThrow(() -> HttpException.badRequest(Message.USER_NOT_FOUND.getMessage()));
 
-		userMapper.merge(existingUser, userDto);
+		existingUser.setFullName(userDto.getFullName());
+		existingUser.setPhone(userDto.getPhone());
+		existingUser.setAge(userDto.getAge());
+		existingUser.setGender(userDto.getGender());
 
 		return userMapper.toDto(userRepository.save(existingUser));
 	}

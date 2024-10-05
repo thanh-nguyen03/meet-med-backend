@@ -10,6 +10,8 @@ public enum Message {
 	USER_NOT_FOUND("User not found"),
 	USER_EMAIL_NOT_FOUND("User with email %s not found"),
 	USER_EMAIL_ALREADY_EXISTS("User with email %s already exists"),
+	USER_PASSWORD_CHANGED_SUCCESSFULLY("User password changed successfully"),
+	USER_ROLE_ASSIGNED_SUCCESSFULLY("User role assigned successfully"),
 
 	// Doctor
 	DOCTOR_NOT_FOUND("Doctor not found"),
@@ -17,6 +19,7 @@ public enum Message {
 	// Department
 	DEPARTMENT_NOT_FOUND("Department not found"),
 	DEPARTMENT_NAME_ALREADY_EXISTS("Department with name %s already exists");
+
 
 	private final String message;
 
