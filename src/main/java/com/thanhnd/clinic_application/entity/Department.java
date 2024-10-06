@@ -25,4 +25,8 @@ public class Department extends BaseEntity {
 
 	@OneToMany(mappedBy = "department")
 	private List<Doctor> doctors;
+
+	@OneToOne
+	@JoinColumn(name = "head_doctor_id", referencedColumnName = "id")
+	private Doctor headDoctor;
 }
