@@ -14,4 +14,10 @@ public interface DepartmentService {
 	DepartmentDto update(String id, DepartmentDto departmentDto);
 
 	void delete(String id);
+
+	void addHeadDoctor(String departmentId, String doctorId);
+
+	void addDoctors(String departmentId, List<String> doctorIds);
+
+	void removeDoctor(String departmentId, String doctorId);
 }

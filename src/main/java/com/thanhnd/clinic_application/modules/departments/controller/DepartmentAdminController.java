@@ -5,6 +5,7 @@ import com.thanhnd.clinic_application.common.controller.BaseController;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
 import com.thanhnd.clinic_application.constants.ControllerPath;
 import com.thanhnd.clinic_application.constants.Permissions;
+import com.thanhnd.clinic_application.modules.departments.dto.AddDoctorsDto;
 import com.thanhnd.clinic_application.modules.departments.dto.DepartmentDto;
 import com.thanhnd.clinic_application.modules.departments.service.DepartmentService;
 import jakarta.validation.Valid;
@@ -46,6 +47,33 @@ public class DepartmentAdminController extends BaseController {
 	@PermissionsAllowed(Permissions.Departments.WRITE)
 	public ResponseEntity<ResponseDto> delete(@PathVariable String id) {
 		departmentService.delete(id);
+		return createSuccessResponse(ResponseDto.success());
+	}
+
+	@PatchMapping("/{departmentId}/head-doctor/{doctorId}")
+	public ResponseEntity<ResponseDto> addHeadDoctor(
+		@PathVariable String departmentId,
+		@PathVariable String doctorId
+	) {
+		departmentService.addHeadDoctor(departmentId, doctorId);
+		return createSuccessResponse(ResponseDto.success());
+	}
+
+	@PatchMapping("/{departmentId}/doctors")
+	public ResponseEntity<ResponseDto> addDoctors(
+		@PathVariable String departmentId,
+		@RequestBody @Valid AddDoctorsDto addDoctorsDto
+	) {
+		departmentService.addDoctors(departmentId, addDoctorsDto.getDoctorIds());
+		return createSuccessResponse(ResponseDto.success());
+	}
+
+	@PatchMapping("/{departmentId}/doctors/{doctorId}")
+	public ResponseEntity<ResponseDto> removeDoctor(
+		@PathVariable String departmentId,
+		@PathVariable String doctorId
+	) {
+		departmentService.removeDoctor(departmentId, doctorId);
 		return createSuccessResponse(ResponseDto.success());
 	}
 }

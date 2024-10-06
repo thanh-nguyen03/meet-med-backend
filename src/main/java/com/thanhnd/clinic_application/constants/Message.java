@@ -15,6 +15,7 @@ public enum Message {
 
 	// Doctor
 	DOCTOR_NOT_FOUND("Doctor not found"),
+	DOCTOR_NOT_IN_DEPARTMENT("Doctor %s not in department"),
 
 	// Department
 	DEPARTMENT_NOT_FOUND("Department not found"),
