@@ -19,7 +19,11 @@ public enum Message {
 
 	// Department
 	DEPARTMENT_NOT_FOUND("Department not found"),
-	DEPARTMENT_NAME_ALREADY_EXISTS("Department with name %s already exists");
+	DEPARTMENT_NAME_ALREADY_EXISTS("Department with name %s already exists"),
+
+	// Room
+	ROOM_NOT_FOUND("Room not found"),
+	ROOM_NAME_ALREADY_EXISTS("Room with name %s already exists in department %s");
 
 
 	private final String message;

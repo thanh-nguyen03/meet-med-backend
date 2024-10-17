@@ -37,4 +37,12 @@ public class ValidationMessage {
 	// Description
 	public static final String DEPARTMENT_DESCRIPTION_REQUIRED = "Department description is required";
 	public static final String DEPARTMENT_DESCRIPTION_LENGTH = "Department description length must not exceed 2000 characters";
+
+	// ----------- Room -----------
+	// Name
+	public static final String ROOM_NAME_REQUIRED = "Room name is required";
+	public static final String ROOM_NAME_LENGTH = "Room name length must be between 3 and 50 characters";
+
+	// Department
+	public static final String ROOM_DEPARTMENT_REQUIRED = "Room department is required";
 }
