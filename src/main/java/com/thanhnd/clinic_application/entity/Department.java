@@ -29,4 +29,7 @@ public class Department extends BaseEntity {
 	@OneToOne
 	@JoinColumn(name = "head_doctor_id", referencedColumnName = "id")
 	private Doctor headDoctor;
+
+	@OneToMany(mappedBy = "department")
+	private List<Room> rooms;
 }

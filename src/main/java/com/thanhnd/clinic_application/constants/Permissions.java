@@ -16,4 +16,9 @@ public class Permissions {
 		public static final String READ = "read:doctors";
 		public static final String WRITE = "write:doctors";
 	}
+
+	public static class Room {
+		public static final String READ = "read:rooms";
+		public static final String WRITE = "write:rooms";
+	}
 }
