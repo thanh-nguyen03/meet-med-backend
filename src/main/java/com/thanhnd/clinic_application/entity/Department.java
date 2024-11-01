@@ -30,6 +30,6 @@ public class Department extends BaseEntity {
 	@JoinColumn(name = "head_doctor_id", referencedColumnName = "id")
 	private Doctor headDoctor;
 
-	@OneToMany(mappedBy = "department")
+	@OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
 	private List<Room> rooms;
 }

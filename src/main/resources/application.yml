@@ -35,4 +35,6 @@ server:
   error:
     whitelabel:
       enabled: false
+    include-binding-errors: always
+    include-message: always
   port: 8080
