@@ -4,7 +4,9 @@ spring:
       clinic-application
 
   datasource:
-    url: jdbc:postgresql://ep-rough-wave-a14ilngl.ap-southeast-1.aws.neon.tech/meet_med_db?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require
+    url: jdbc:postgresql://0.tcp.ap.ngrok.io:14239/meet_met_db
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     database: postgresql
@@ -35,4 +37,6 @@ server:
   error:
     whitelabel:
       enabled: false
+    include-binding-errors: always
+    include-message: always
   port: 8080

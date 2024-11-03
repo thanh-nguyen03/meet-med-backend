@@ -21,4 +21,9 @@ public class Permissions {
 		public static final String READ = "read:rooms";
 		public static final String WRITE = "write:rooms";
 	}
+
+	public static class Shift {
+		public static final String READ = "read:shifts";
+		public static final String WRITE = "write:shifts";
+	}
 }

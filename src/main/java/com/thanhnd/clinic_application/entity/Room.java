@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(
 	name = "tbl_room",
@@ -23,4 +25,7 @@ public class Room extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "department_id", nullable = false)
 	private Department department;
+
+	@OneToMany(mappedBy = "room")
+	private List<RegisteredShift> registeredShifts;
 }

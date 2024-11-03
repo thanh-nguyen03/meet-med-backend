@@ -23,8 +23,10 @@ public enum Message {
 
 	// Room
 	ROOM_NOT_FOUND("Room not found"),
-	ROOM_NAME_ALREADY_EXISTS("Room with name %s already exists in department %s");
+	ROOM_NAME_ALREADY_EXISTS("Room with name %s already exists in department %s"),
 
+	// Shifts
+	SHIFT_FOR_MONTH_ALREADY_CREATED("Shifts for %d/%d already created");
 
 	private final String message;
 
