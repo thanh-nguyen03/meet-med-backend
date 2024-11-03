@@ -4,6 +4,8 @@ import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.Shift;
 import com.thanhnd.clinic_application.helper.DateHelper;
+import com.thanhnd.clinic_application.mapper.ShiftMapper;
+import com.thanhnd.clinic_application.modules.shifts.dto.ShiftDto;
 import com.thanhnd.clinic_application.modules.shifts.repository.ShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.service.ShiftService;
 import jakarta.transaction.Transactional;
@@ -11,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,18 @@ public class ShiftServiceImpl implements ShiftService {
 	public static final int AFTERNOON_START_HOUR = 13;
 
 	private final ShiftRepository shiftRepository;
+	private final ShiftMapper shiftMapper;
+
+	@Override
+	public List<ShiftDto> getShiftList(LocalDate startDate, LocalDate endDate) {
+		Instant start = DateHelper.getStartOfDay(startDate);
+		Instant end = DateHelper.getEndOfDay(endDate);
+
+		return shiftRepository.findAllByStartTimeBetween(start, end)
+			.stream()
+			.map(shiftMapper::toDto)
+			.collect(Collectors.toList());
+	}
 
 	@Override
 	public void createShiftTable(int month, int year) {

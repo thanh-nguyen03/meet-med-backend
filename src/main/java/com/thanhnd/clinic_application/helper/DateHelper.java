@@ -1,6 +1,7 @@
 package com.thanhnd.clinic_application.helper;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 
@@ -13,11 +14,19 @@ public class DateHelper {
 
 	public static Instant getLastDayOfMonth(int month, int year) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.MONTH, month - 1); // Month is zero-based
 		calendar.set(Calendar.YEAR, year);
 
 		int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-		return Instant.parse(year + "-" + month + "-" + lastDay + "T23:59:59Z");
+		return Instant.parse(year + "-" + String.format("%02d", month) + "-" + String.format("%02d", lastDay) + "T23:59:59Z");
+	}
+
+	public static Instant getStartOfDay(LocalDate date) {
+		return date.atStartOfDay(ZONE_ID).toInstant();
+	}
+
+	public static Instant getEndOfDay(LocalDate date) {
+		return date.atTime(23, 59, 59).atZone(ZONE_ID).toInstant();
 	}
 }
