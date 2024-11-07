@@ -1,4 +1,4 @@
-package com.thanhnd.clinic_application.modules.shifts.dto;
+package com.thanhnd.clinic_application.modules.shifts.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GenerateShiftTableDto {
+public class GenerateShiftTableRequestDto {
 	@NotNull
 	@Min(1)
 	@Max(12)

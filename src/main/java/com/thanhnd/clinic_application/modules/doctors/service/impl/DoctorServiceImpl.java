@@ -3,15 +3,15 @@ package com.thanhnd.clinic_application.modules.doctors.service.impl;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.Role;
-import com.thanhnd.clinic_application.entity.Department;
-import com.thanhnd.clinic_application.entity.Doctor;
-import com.thanhnd.clinic_application.entity.User;
+import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.mapper.DoctorMapper;
 import com.thanhnd.clinic_application.modules.departments.repository.DepartmentRepository;
 import com.thanhnd.clinic_application.modules.doctors.dto.CreateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.DoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
+import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPriceByDegreeRepository;
+import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPriceByExperienceRepository;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -29,6 +29,9 @@ public class DoctorServiceImpl implements DoctorService {
 	private final UserRepository userRepository;
 	private final DoctorRepository doctorRepository;
 	private final DepartmentRepository departmentRepository;
+	private final DoctorShiftPriceByDegreeRepository doctorShiftPriceByDegreeRepository;
+	private final DoctorShiftPriceByExperienceRepository doctorShiftPriceByExperienceRepository;
+
 	private final DoctorMapper doctorMapper;
 
 	@Override
@@ -97,5 +100,23 @@ public class DoctorServiceImpl implements DoctorService {
 			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
 
 		doctorRepository.delete(doctor);
+	}
+
+	@Override
+	public Double calculateDoctorShiftPrice(Doctor doctor) {
+		if (doctor.getDegree() == null || doctor.getYearsOfExperience() == null) {
+			return doctorShiftPriceByDegreeRepository.findByDegree(DoctorShiftPriceByDegree.BASE_DEGREE).getBasePrice();
+		}
+
+		Double priceByDegree = doctorShiftPriceByDegreeRepository.findByDegree(doctor.getDegree()).getBasePrice();
+		List<DoctorShiftPriceByExperience> priceByExperiences = doctorShiftPriceByExperienceRepository.findAllSorted();
+
+		for (DoctorShiftPriceByExperience priceByExperience : priceByExperiences) {
+			if (doctor.getYearsOfExperience() >= priceByExperience.getExperience()) {
+				return priceByDegree * priceByExperience.getMultiplier();
+			}
+		}
+
+		return 0.0;
 	}
 }

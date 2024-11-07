@@ -1,11 +1,16 @@
 package com.thanhnd.clinic_application.modules.shifts.service.impl;
 
 import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
-import com.thanhnd.clinic_application.entity.Shift;
+import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.helper.DateHelper;
 import com.thanhnd.clinic_application.mapper.ShiftMapper;
+import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
+import com.thanhnd.clinic_application.modules.rooms.repository.RoomRepository;
+import com.thanhnd.clinic_application.modules.shifts.dto.CanRegisterShiftDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.ShiftDto;
+import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.repository.ShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.service.ShiftService;
 import jakarta.transaction.Transactional;
@@ -27,6 +32,12 @@ public class ShiftServiceImpl implements ShiftService {
 	public static final int AFTERNOON_START_HOUR = 13;
 
 	private final ShiftRepository shiftRepository;
+	private final DoctorRepository doctorRepository;
+	private final RegisteredShiftRepository registeredShiftRepository;
+	private final RoomRepository roomRepository;
+
+	private final JwtAuthenticationManager jwtAuthenticationManager;
+
 	private final ShiftMapper shiftMapper;
 
 	@Override
@@ -34,7 +45,7 @@ public class ShiftServiceImpl implements ShiftService {
 		Instant start = DateHelper.getStartOfDay(startDate);
 		Instant end = DateHelper.getEndOfDay(endDate);
 
-		return shiftRepository.findAllByStartTimeBetween(start, end)
+		return shiftRepository.findAllByTimeBetween(start, end)
 			.stream()
 			.map(shiftMapper::toDto)
 			.collect(Collectors.toList());
@@ -59,6 +70,41 @@ public class ShiftServiceImpl implements ShiftService {
 		}
 	}
 
+	@Override
+	public List<CanRegisterShiftDto> getListShiftCanRegister() {
+		String authenticatedDoctorId = jwtAuthenticationManager.getIdentityProviderId();
+
+		Doctor doctor = doctorRepository.findByUserIdentityProviderId(authenticatedDoctorId)
+			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
+
+		// A doctor can register a shift within 1 week from the next day from the current day
+		LocalDate nextDay = LocalDate.now().plusDays(1);
+		LocalDate nextWeek = nextDay.plusDays(6);
+
+		Instant start = DateHelper.getStartOfDay(nextDay);
+		Instant end = DateHelper.getEndOfDay(nextWeek);
+
+		return getListByDoctorIdAndTime(doctor, start, end);
+	}
+
+	@Override
+	public List<CanRegisterShiftDto> getCurrentWeekShiftCanRegister() {
+		String authenticatedDoctorId = jwtAuthenticationManager.getIdentityProviderId();
+
+		Doctor doctor = doctorRepository.findByUserIdentityProviderId(authenticatedDoctorId)
+			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
+
+		// Get the start and end of the current week
+		LocalDate currentDay = LocalDate.now();
+		LocalDate startOfWeek = DateHelper.getStartOfWeek(currentDay);
+		LocalDate endOfWeek = DateHelper.getEndOfWeek(currentDay);
+
+		Instant start = DateHelper.getStartOfDay(startOfWeek);
+		Instant end = DateHelper.getEndOfDay(endOfWeek);
+
+		return getListByDoctorIdAndTime(doctor, start, end);
+	}
+
 	private void createShiftTableForDay(LocalDateTime date) {
 		LocalDateTime morningShiftStart = date.withHour(MORNING_START_HOUR);
 		LocalDateTime afternoonShiftStart = date.withHour(AFTERNOON_START_HOUR);
@@ -79,5 +125,38 @@ public class ShiftServiceImpl implements ShiftService {
 		shift.setEndTime(endTime);
 
 		shiftRepository.save(shift);
+	}
+
+	private List<CanRegisterShiftDto> getListByDoctorIdAndTime(Doctor doctor, Instant start, Instant end) {
+		List<Shift> shifts = shiftRepository.findAllByTimeBetween(start, end);
+		List<RegisteredShift> registeredShifts = registeredShiftRepository.findAllByDoctorIdAndShiftTimeBetween(doctor.getId(), start, end);
+		Department department = doctor.getDepartment();
+		List<Room> departmentRooms = roomRepository.findAllByDepartmentId(department.getId());
+
+		return shifts.stream()
+			.map((shift) -> {
+				CanRegisterShiftDto canRegisterShiftDto = new CanRegisterShiftDto(shift);
+				// Check if the shift is already registered by the doctor
+				RegisteredShift foundRegisteredShift = registeredShifts.stream()
+					.filter(registeredShift -> registeredShift.getShift().getId().equals(shift.getId()))
+					.findFirst()
+					.orElse(null);
+
+				List<RegisteredShift> registeredShiftInShift = registeredShifts.stream()
+					.filter(registeredShift -> registeredShift.getShift().getId().equals(shift.getId()))
+					.toList();
+
+				Boolean isRegistered = foundRegisteredShift != null;
+				Boolean isApproved = foundRegisteredShift != null && foundRegisteredShift.getIsApproved();
+				// calculate the remaining number of rooms available (in one shift)
+				Integer remainingNumberOfRoomsAvailable = departmentRooms.size() - registeredShiftInShift.size();
+
+				canRegisterShiftDto.setIsRegisteredByCurrentDoctor(isRegistered);
+				canRegisterShiftDto.setIsApproved(isApproved);
+				canRegisterShiftDto.setRemainingNumberOfRoomsAvailable(remainingNumberOfRoomsAvailable);
+
+				return canRegisterShiftDto;
+			})
+			.collect(Collectors.toList());
 	}
 }

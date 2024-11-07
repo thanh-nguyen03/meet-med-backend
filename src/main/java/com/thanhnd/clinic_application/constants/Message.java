@@ -26,7 +26,17 @@ public enum Message {
 	ROOM_NAME_ALREADY_EXISTS("Room with name %s already exists in department %s"),
 
 	// Shifts
-	SHIFT_FOR_MONTH_ALREADY_CREATED("Shifts for %d/%d already created");
+	SHIFT_FOR_MONTH_ALREADY_CREATED("Shifts for %d/%d already created"),
+
+	SHIFT_NOT_FOUND("Shift not found"),
+	SHIFT_FULL("Shift is full"),
+	DOCTOR_ALREADY_REGISTERED_FOR_SHIFT("Doctor already registered for shift"),
+
+	// Registered Shift
+	REGISTERED_SHIFT_NOT_FOUND("Registered shift not found"),
+	CANNOT_REGISTER_MULTIPLE_DOCTORS("Cannot register for multiple doctors"),
+	DUPLICATE_SHIFTS_IN_REQUEST("Duplicate shifts in request"),
+	;
 
 	private final String message;
 
