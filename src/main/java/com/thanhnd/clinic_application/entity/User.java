@@ -24,6 +24,10 @@ public class User extends BaseEntity {
 	private Integer age;
 	private String phone;
 
+	@Column(unique = true)
+	private String identityProviderId;
+	private String identityProvider;
+
 	@Column(nullable = false)
 	private UserGender gender = UserGender.Male;
 

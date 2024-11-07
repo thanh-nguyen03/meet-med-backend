@@ -8,13 +8,14 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "tbl_registered_shift")
-public class RegisteredShift {
+public class RegisteredShift extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 
-	private Integer shiftPrice;
+	private Double shiftPrice;
 	private Integer maxNumberOfPatients;
+	private Boolean isApproved = false;
 
 	@ManyToOne
 	@JoinColumn(name = "shift_id", referencedColumnName = "id")

@@ -17,7 +17,7 @@ public interface ShiftRepository extends BaseRepository<Shift, String> {
 	boolean existsShiftByStartTimeBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
 	@Query(
-		"SELECT s FROM Shift s WHERE s.startTime BETWEEN :startTime AND :endTime"
+		"SELECT s FROM Shift s WHERE s.startTime >= :startTime AND s.endTime <= :endTime"
 	)
-	List<Shift> findAllByStartTimeBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
+	List<Shift> findAllByTimeBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 }

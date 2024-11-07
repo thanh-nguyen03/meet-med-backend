@@ -28,6 +28,19 @@ public class JwtAuthenticationManagerImpl implements JwtAuthenticationManager {
 	}
 
 	@Override
+	public Map<String, Object> getClaims() {
+		initClaims();
+		return claims;
+	}
+
+	@Override
+	public String getIdentityProviderId() {
+		initClaims();
+		String userId = getClaim(JwtConstants.JWT_IDENTITY_PROVIDER_ID_CLAIM);
+		return userId.split("\\|")[1];
+	}
+
+	@Override
 	public <T> T getClaim(String key) {
 		initClaims();
 		try {

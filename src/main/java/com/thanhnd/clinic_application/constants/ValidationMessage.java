@@ -15,6 +15,7 @@ public class ValidationMessage {
 	public static final String FULL_NAME_REQUIRED = "Full name is required";
 
 	// ----------- Doctor -----------
+	public static final String DOCTOR_REQUIRED = "Doctor is required";
 	// Years of experience
 	public static final String DOCTOR_YEARS_OF_EXPERIENCE_REQUIRED = "Doctor's years of experience is required";
 	public static final String DOCTOR_YEARS_OF_EXPERIENCE_INVALID = "Doctor's years of experience must be a positive number";
@@ -45,4 +46,7 @@ public class ValidationMessage {
 
 	// Department
 	public static final String ROOM_DEPARTMENT_REQUIRED = "Room department is required";
+
+	// ----------- Shift -----------
+	public static final String SHIFT_REQUIRED = "Shift is required";
 }

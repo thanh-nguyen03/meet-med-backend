@@ -29,4 +29,12 @@ public class DateHelper {
 	public static Instant getEndOfDay(LocalDate date) {
 		return date.atTime(23, 59, 59).atZone(ZONE_ID).toInstant();
 	}
+
+	public static LocalDate getStartOfWeek(LocalDate date) {
+		return date.minusDays(date.getDayOfWeek().getValue() - 1);
+	}
+
+	public static LocalDate getEndOfWeek(LocalDate date) {
+		return date.plusDays(7 - date.getDayOfWeek().getValue());
+	}
 }

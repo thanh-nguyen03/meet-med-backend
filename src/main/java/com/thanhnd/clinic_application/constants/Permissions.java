@@ -26,4 +26,9 @@ public class Permissions {
 		public static final String READ = "read:shifts";
 		public static final String WRITE = "write:shifts";
 	}
+
+	public static class RegisteredShift {
+		public static final String READ = "read:registered_shifts";
+		public static final String WRITE = "write:registered_shifts";
+	}
 }
