@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface DoctorRepository extends BaseRepository<Doctor, String> {
-	@Query("SELECT d FROM Doctor d WHERE d.user.identityProviderId = :userIdentityProviderId")
-	Optional<Doctor> findByUserIdentityProviderId(String userIdentityProviderId);
+	@Query("SELECT d FROM Doctor d WHERE d.user.id = :userId")
+	Optional<Doctor> findByUserId(String userId);
 }

@@ -48,9 +48,9 @@ public class RegisteredShiftServiceImpl implements RegisteredShiftService {
 
 	@Override
 	public List<RegisteredShiftDto> create(List<RegisterShiftRequestDto> registerShiftRequestDtoList) {
-		String authenticatedDoctorId = jwtAuthenticationManager.getIdentityProviderId();
+		String userId = jwtAuthenticationManager.getUserId();
 
-		Doctor doctor = doctorRepository.findByUserIdentityProviderId(authenticatedDoctorId)
+		Doctor doctor = doctorRepository.findByUserId(userId)
 			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
 
 		Set<String> shiftIds = registerShiftRequestDtoList.stream()

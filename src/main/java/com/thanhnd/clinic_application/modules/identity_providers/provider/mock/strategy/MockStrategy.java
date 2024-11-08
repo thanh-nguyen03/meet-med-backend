@@ -24,6 +24,11 @@ public class MockStrategy extends IdentityProviderStrategy {
 	}
 
 	@Override
+	public Map<String, Object> updateUser(String identityProviderUserId, Map<String, Object> userDto) {
+		return Map.of();
+	}
+
+	@Override
 	public Map<String, Object> getUserByEmail(String email) {
 		// Mock implementation
 		Map<String, Object> response = new HashMap<>();

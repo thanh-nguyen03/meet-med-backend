@@ -16,4 +16,6 @@ public interface UserMapper extends IBaseMapper<User, UserDto> {
 	void merge(@MappingTarget User entity, UserDto dto);
 
 	User create(CreateUserDto createUserDto);
+
+	UserDto toDto(User user);
 }

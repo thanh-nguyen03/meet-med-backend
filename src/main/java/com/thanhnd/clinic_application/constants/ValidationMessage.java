@@ -2,6 +2,7 @@ package com.thanhnd.clinic_application.constants;
 
 public class ValidationMessage {
 	// ----------- User -----------
+	public static final String USER_REQUIRED = "User is required";
 	// Email
 	public static final String EMAIL_INVALID = "Email address is invalid";
 	public static final String EMAIL_REQUIRED = "Email address is required";

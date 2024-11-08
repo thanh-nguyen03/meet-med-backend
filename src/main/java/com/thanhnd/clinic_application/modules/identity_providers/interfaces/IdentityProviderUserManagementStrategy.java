@@ -7,6 +7,8 @@ public interface IdentityProviderUserManagementStrategy {
 
 	void deleteUser(String id);
 
+	Map<String, Object> updateUser(String identityProviderUserId, Map<String, Object> userDto);
+
 	Map<String, Object> getUserByEmail(String email);
 
 	String resetUserPassword(Map<String, Object> user);

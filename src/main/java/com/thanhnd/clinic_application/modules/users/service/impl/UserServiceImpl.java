@@ -29,14 +29,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto findByEmail(String email) {
-		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> HttpException.notFound(Message.USER_NOT_FOUND.getMessage()));
-
-		return userMapper.toDto(user);
-	}
-
-	@Override
 	public List<UserDto> findAll() {
 		return userRepository.findAll().stream()
 			.map(userMapper::toDto)

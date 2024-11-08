@@ -34,10 +34,18 @@ public class JwtAuthenticationManagerImpl implements JwtAuthenticationManager {
 	}
 
 	@Override
-	public String getIdentityProviderId() {
+	public String getUserId() {
 		initClaims();
-		String userId = getClaim(JwtConstants.JWT_IDENTITY_PROVIDER_ID_CLAIM);
-		return userId.split("\\|")[1];
+		Map<String, Object> user = getClaim(JwtConstants.JWT_USER_INFO_CLAIM);
+		return Objects.requireNonNullElse(user, Map.of()).get("id").toString();
+	}
+
+	@Override
+	public String getIdentityProviderUserId() {
+		initClaims();
+		String sub = getClaim(JwtConstants.JWT_SUB_CLAIM);
+
+		return sub.split("\\|")[1];
 	}
 
 	@Override
