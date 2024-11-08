@@ -36,6 +36,11 @@ public enum Message {
 	REGISTERED_SHIFT_NOT_FOUND("Registered shift not found"),
 	CANNOT_REGISTER_MULTIPLE_DOCTORS("Cannot register for multiple doctors"),
 	DUPLICATE_SHIFTS_IN_REQUEST("Duplicate shifts in request"),
+
+	// Patient
+	PATIENT_NOT_FOUND("Patient profile not found"),
+	PATIENT_HAS_NOT_BEEN_CREATED("Patient profile has not been created"),
+	PATIENT_ALREADY_EXISTS("Patient profile already exists"),
 	;
 
 	private final String message;

@@ -36,4 +36,7 @@ public class User extends BaseEntity {
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private Doctor doctor;
+
+	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+	private Patient patient;
 }

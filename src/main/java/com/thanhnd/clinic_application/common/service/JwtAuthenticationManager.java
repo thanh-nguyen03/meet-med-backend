@@ -8,7 +8,9 @@ public interface JwtAuthenticationManager {
 
 	Map<String, Object> getClaims();
 
-	String getIdentityProviderId();
+	String getUserId();
+
+	String getIdentityProviderUserId();
 
 	<T> T getClaim(String key);
 

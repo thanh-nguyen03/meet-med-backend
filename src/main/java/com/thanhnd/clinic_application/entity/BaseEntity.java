@@ -13,10 +13,10 @@ import java.time.Instant;
 @Setter
 @MappedSuperclass
 public class BaseEntity {
-	@Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
+	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
+	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt;
 
 	@PrePersist

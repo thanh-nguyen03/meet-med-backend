@@ -85,6 +85,40 @@ public class Auth0Strategy extends IdentityProviderStrategy {
 	}
 
 	@Override
+	public Map<String, Object> updateUser(String identityProviderUserId, Map<String, Object> userDto) {
+		String accessToken = auth0Service.getAccessToken();
+		String url = "https://" + AUTH0_DOMAIN + "/api/v2/users/" + identityProviderUserId;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+		Map<String, Object> body = new HashMap<>();
+		body.put("name", userDto.get("fullName"));
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+		try {
+			ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+				url, HttpMethod.PATCH, request, (Class<Map<String, Object>>) (Class<?>) Map.class
+			);
+
+			if (response.getStatusCode().is2xxSuccessful()) {
+				return response.getBody();
+			}
+		} catch (RestClientException e) {
+			Auth0Exception auth0Exception = Auth0Exception.fromJson(e.getMessage());
+			if (auth0Exception.getStatusCode().is4xxClientError()) {
+				throw HttpException.badRequest(auth0Exception.getMessage());
+			} else {
+				throw HttpException.internalServerError(auth0Exception.getMessage());
+			}
+		}
+
+		return Map.of();
+	}
+
+	@Override
 	public Map<String, Object> getUserByEmail(String email) {
 		String accessToken = auth0Service.getAccessToken();
 		String url = "https://" + AUTH0_DOMAIN + "/api/v2/users-by-email?email=" + email;

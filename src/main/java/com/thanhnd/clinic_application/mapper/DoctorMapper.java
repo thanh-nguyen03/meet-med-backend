@@ -16,5 +16,6 @@ public interface DoctorMapper extends IBaseMapper<Doctor, DoctorDto> {
 	void merge(@MappingTarget Doctor entity, DoctorDto dto);
 
 	@Mapping(target = "doctors", ignore = true)
+	@Mapping(target = "headDoctor", ignore = true)
 	DepartmentDto toDepartmentDto(Department department);
 }

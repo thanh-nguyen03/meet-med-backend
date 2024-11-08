@@ -25,6 +25,6 @@ public class UserDto extends BaseDto {
 
 	private Integer age;
 	private String phone;
-	private UserGender gender;
+	private UserGender gender = UserGender.Male;
 	private Role role;
 }

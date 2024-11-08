@@ -72,9 +72,9 @@ public class ShiftServiceImpl implements ShiftService {
 
 	@Override
 	public List<CanRegisterShiftDto> getListShiftCanRegister() {
-		String authenticatedDoctorId = jwtAuthenticationManager.getIdentityProviderId();
+		String userId = jwtAuthenticationManager.getUserId();
 
-		Doctor doctor = doctorRepository.findByUserIdentityProviderId(authenticatedDoctorId)
+		Doctor doctor = doctorRepository.findByUserId(userId)
 			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
 
 		// A doctor can register a shift within 1 week from the next day from the current day
@@ -89,9 +89,9 @@ public class ShiftServiceImpl implements ShiftService {
 
 	@Override
 	public List<CanRegisterShiftDto> getCurrentWeekShiftCanRegister() {
-		String authenticatedDoctorId = jwtAuthenticationManager.getIdentityProviderId();
+		String userId = jwtAuthenticationManager.getUserId();
 
-		Doctor doctor = doctorRepository.findByUserIdentityProviderId(authenticatedDoctorId)
+		Doctor doctor = doctorRepository.findByUserId(userId)
 			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
 
 		// Get the start and end of the current week
