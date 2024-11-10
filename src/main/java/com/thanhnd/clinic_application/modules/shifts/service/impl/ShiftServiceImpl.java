@@ -5,6 +5,7 @@ import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.helper.DateHelper;
+import com.thanhnd.clinic_application.mapper.RegisteredShiftMapper;
 import com.thanhnd.clinic_application.mapper.ShiftMapper;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
 import com.thanhnd.clinic_application.modules.rooms.repository.RoomRepository;
@@ -39,6 +40,7 @@ public class ShiftServiceImpl implements ShiftService {
 	private final JwtAuthenticationManager jwtAuthenticationManager;
 
 	private final ShiftMapper shiftMapper;
+	private final RegisteredShiftMapper registeredShiftMapper;
 
 	@Override
 	public List<ShiftDto> getShiftList(LocalDate startDate, LocalDate endDate) {
@@ -88,14 +90,17 @@ public class ShiftServiceImpl implements ShiftService {
 	}
 
 	@Override
-	public List<CanRegisterShiftDto> getCurrentWeekShiftCanRegister() {
+	public List<CanRegisterShiftDto> getWeekShiftCanRegister(Boolean isNextWeek) {
 		String userId = jwtAuthenticationManager.getUserId();
 
 		Doctor doctor = doctorRepository.findByUserId(userId)
 			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
 
-		// Get the start and end of the current week
+		// Get the start and end of the week
 		LocalDate currentDay = LocalDate.now();
+		if (isNextWeek) {
+			currentDay = currentDay.plusWeeks(1);
+		}
 		LocalDate startOfWeek = DateHelper.getStartOfWeek(currentDay);
 		LocalDate endOfWeek = DateHelper.getEndOfWeek(currentDay);
 
@@ -146,12 +151,11 @@ public class ShiftServiceImpl implements ShiftService {
 					.filter(registeredShift -> registeredShift.getShift().getId().equals(shift.getId()))
 					.toList();
 
-				Boolean isRegistered = foundRegisteredShift != null;
 				Boolean isApproved = foundRegisteredShift != null && foundRegisteredShift.getIsApproved();
 				// calculate the remaining number of rooms available (in one shift)
 				Integer remainingNumberOfRoomsAvailable = departmentRooms.size() - registeredShiftInShift.size();
 
-				canRegisterShiftDto.setIsRegisteredByCurrentDoctor(isRegistered);
+				canRegisterShiftDto.setRegisteredShift(foundRegisteredShift != null ? registeredShiftMapper.toDtoExcludeShift(foundRegisteredShift) : null);
 				canRegisterShiftDto.setIsApproved(isApproved);
 				canRegisterShiftDto.setRemainingNumberOfRoomsAvailable(remainingNumberOfRoomsAvailable);
 

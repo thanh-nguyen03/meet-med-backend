@@ -6,6 +6,8 @@ import com.thanhnd.clinic_application.modules.rooms.dto.RoomDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class RegisteredShiftDto extends BaseDto {
@@ -17,4 +19,5 @@ public class RegisteredShiftDto extends BaseDto {
 	private ShiftDto shift;
 	private DoctorDto doctor;
 	private RoomDto room;
+	private List<RegisteredShiftTimeSlotDto> timeSlots;
 }

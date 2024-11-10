@@ -28,10 +28,10 @@ public class DoctorShiftController extends BaseController {
 		return createSuccessResponse(ResponseDto.success(shiftService.getListShiftCanRegister()));
 	}
 
-	@GetMapping("/current-week")
+	@GetMapping("/get-week")
 	@PermissionsAllowed(permissions = {Permissions.RegisteredShift.READ})
-	public ResponseEntity<ResponseDto> getCurrentWeekShifts() {
-		return createSuccessResponse(ResponseDto.success(shiftService.getCurrentWeekShiftCanRegister()));
+	public ResponseEntity<ResponseDto> getCurrentWeekShifts(@RequestParam(required = false, defaultValue = "false") Boolean isNextWeek) {
+		return createSuccessResponse(ResponseDto.success(shiftService.getWeekShiftCanRegister(isNextWeek)));
 	}
 
 	@PostMapping("/register")

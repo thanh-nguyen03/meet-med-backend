@@ -3,10 +3,7 @@ package com.thanhnd.clinic_application.modules.shifts.service.impl;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
-import com.thanhnd.clinic_application.entity.Doctor;
-import com.thanhnd.clinic_application.entity.RegisteredShift;
-import com.thanhnd.clinic_application.entity.Room;
-import com.thanhnd.clinic_application.entity.Shift;
+import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.mapper.RegisteredShiftMapper;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
@@ -14,12 +11,15 @@ import com.thanhnd.clinic_application.modules.rooms.repository.RoomRepository;
 import com.thanhnd.clinic_application.modules.shifts.dto.RegisteredShiftDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.request.RegisterShiftRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftRepository;
+import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftTimeSlotRepository;
 import com.thanhnd.clinic_application.modules.shifts.repository.ShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,8 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class RegisteredShiftServiceImpl implements RegisteredShiftService {
-	private static final Integer MAX_NUMBER_OF_PATIENTS_PER_SHIFT = 10;
+	private static final Integer MAX_NUMBER_OF_PATIENTS_PER_SHIFT = 16;
 	private final RegisteredShiftRepository registeredShiftRepository;
+	private final RegisteredShiftTimeSlotRepository registeredShiftTimeSlotRepository;
 	private final DoctorRepository doctorRepository;
 	private final RoomRepository roomRepository;
 	private final ShiftRepository shiftRepository;
@@ -110,6 +111,28 @@ public class RegisteredShiftServiceImpl implements RegisteredShiftService {
 		registeredShift.setShift(shift);
 		registeredShift.setDoctor(doctor);
 
-		return registeredShiftRepository.save(registeredShift);
+
+		RegisteredShift saved = registeredShiftRepository.save(registeredShift);
+		List<RegisteredShiftTimeSlot> registeredShiftTimeSlotList = handleCreateRegisteredShiftTimeSlots(saved);
+
+		saved.setTimeSlots(registeredShiftTimeSlotList);
+
+		return registeredShiftRepository.save(saved);
+	}
+
+	private List<RegisteredShiftTimeSlot> handleCreateRegisteredShiftTimeSlots(RegisteredShift registeredShift) {
+		Shift shift = registeredShift.getShift();
+
+		List<RegisteredShiftTimeSlot> registeredShiftTimeSlotList = new ArrayList<>();
+		for (Instant startTime = shift.getStartTime(); startTime.isBefore(shift.getEndTime()); startTime = startTime.plusSeconds(1800)) {
+			RegisteredShiftTimeSlot registeredShiftTimeSlot = new RegisteredShiftTimeSlot();
+			registeredShiftTimeSlot.setStartTime(startTime);
+			registeredShiftTimeSlot.setEndTime(startTime.plusSeconds(1800));
+			registeredShiftTimeSlot.setRegisteredShift(registeredShift);
+
+			registeredShiftTimeSlotList.add(registeredShiftTimeSlot);
+		}
+
+		return registeredShiftTimeSlotRepository.saveAll(registeredShiftTimeSlotList);
 	}
 }

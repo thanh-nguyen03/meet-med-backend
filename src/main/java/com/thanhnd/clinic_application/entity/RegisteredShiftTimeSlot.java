@@ -9,20 +9,18 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "tbl_appointment")
-public class Appointment extends BaseEntity {
+@Table(name = "tbl_registered_shift_time_slot")
+public class RegisteredShiftTimeSlot extends BaseEntity {
+	public static final Integer MAX_NUMBER_OF_PATIENTS = 2;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 
-	@Column(nullable = false)
-	private Instant bookTime;
+	private Instant startTime;
+	private Instant endTime;
 
 	@ManyToOne
 	@JoinColumn(name = "registered_shift_id", referencedColumnName = "id")
 	private RegisteredShift registeredShift;
-
-	@ManyToOne
-	@JoinColumn(name = "patient_id", referencedColumnName = "id")
-	private Patient patient;
 }
