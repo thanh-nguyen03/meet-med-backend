@@ -12,4 +12,7 @@ public interface RegisteredShiftMapper extends IBaseMapper<RegisteredShift, Regi
 	@Mapping(target = "doctors", ignore = true)
 	@Mapping(target = "headDoctor", ignore = true)
 	DepartmentDto toDepartmentDto(Department entity);
+
+	@Mapping(target = "shift", ignore = true)
+	RegisteredShiftDto toDtoExcludeShift(RegisteredShift entity);
 }

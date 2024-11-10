@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -28,4 +30,7 @@ public class RegisteredShift extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "room_id", referencedColumnName = "id")
 	private Room room;
+
+	@OneToMany(mappedBy = "registeredShift")
+	private List<RegisteredShiftTimeSlot> timeSlots;
 }

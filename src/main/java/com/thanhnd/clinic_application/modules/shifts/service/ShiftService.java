@@ -14,5 +14,5 @@ public interface ShiftService {
 
 	List<CanRegisterShiftDto> getListShiftCanRegister();
 
-	List<CanRegisterShiftDto> getCurrentWeekShiftCanRegister();
+	List<CanRegisterShiftDto> getWeekShiftCanRegister(Boolean isNextWeek);
 }
