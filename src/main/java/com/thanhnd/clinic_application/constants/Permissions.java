@@ -31,4 +31,9 @@ public class Permissions {
 		public static final String READ = "read:registered_shifts";
 		public static final String WRITE = "write:registered_shifts";
 	}
+
+	public static class Appointment {
+		public static final String READ = "read:appointments";
+		public static final String WRITE = "write:appointments";
+	}
 }

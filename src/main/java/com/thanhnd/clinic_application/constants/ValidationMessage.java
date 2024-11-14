@@ -50,4 +50,8 @@ public class ValidationMessage {
 
 	// ----------- Shift -----------
 	public static final String SHIFT_REQUIRED = "Shift is required";
+
+	// ----------- Appointment -----------
+	public static final String BOOK_TIME_REQUIRED = "Book time is required";
+	public static final String TIME_SLOT_REQUIRED = "Shift time slot is required";
 }
