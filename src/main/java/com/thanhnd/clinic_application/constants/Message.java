@@ -41,6 +41,14 @@ public enum Message {
 	PATIENT_NOT_FOUND("Patient profile not found"),
 	PATIENT_HAS_NOT_BEEN_CREATED("Patient profile has not been created"),
 	PATIENT_ALREADY_EXISTS("Patient profile already exists"),
+
+	// Time slot
+	TIME_SLOT_NOT_FOUND("Time slot not found"),
+	TIME_SLOT_FULL("Time slot is full"),
+	TIME_SLOT_ALREADY_BOOKED("You have already booked this time slot"),
+
+	// Appointment
+	APPOINTMENT_NOT_FOUND("Appointment not found"),
 	;
 
 	private final String message;
