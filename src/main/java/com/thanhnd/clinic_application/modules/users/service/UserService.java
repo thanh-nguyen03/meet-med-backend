@@ -7,7 +7,11 @@ import java.util.List;
 public interface UserService {
 	UserDto findById(String id);
 
+	UserDto findByIdentityProviderUserId(String identityProviderUserId);
+
 	List<UserDto> findAll();
+
+	UserDto create(UserDto userDto);
 
 	UserDto update(String id, UserDto userDto);
 
