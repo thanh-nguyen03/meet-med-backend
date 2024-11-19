@@ -19,13 +19,18 @@ public class UserController extends BaseController {
 
 	@GetMapping("/user-info")
 	public ResponseEntity<ResponseDto> getUserInfo() {
-		String userId = jwtAuthenticationManager.getUserId();
+		String identityProviderUserId = jwtAuthenticationManager.getIdentityProviderUserId();
 
-		if (userId == null) {
+		if (identityProviderUserId == null) {
 			return createErrorResponse(ResponseDto.unauthorized(Message.UNAUTHORIZED.getMessage()));
 		}
 
-		return createSuccessResponse(ResponseDto.success(userService.findById(userId)));
+		return createSuccessResponse(ResponseDto.success(userService.findById(identityProviderUserId)));
+	}
+
+	@PostMapping
+	public ResponseEntity<ResponseDto> createUserInDB(@RequestBody UserDto userDto) {
+		return createSuccessResponse(ResponseDto.success(userService.create(userDto)));
 	}
 
 	@PutMapping("/profile")

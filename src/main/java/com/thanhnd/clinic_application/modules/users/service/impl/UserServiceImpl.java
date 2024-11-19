@@ -2,6 +2,7 @@ package com.thanhnd.clinic_application.modules.users.service.impl;
 
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
+import com.thanhnd.clinic_application.constants.Role;
 import com.thanhnd.clinic_application.entity.User;
 import com.thanhnd.clinic_application.mapper.UserMapper;
 import com.thanhnd.clinic_application.modules.users.dto.UserDto;
@@ -29,10 +30,26 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public UserDto findByIdentityProviderUserId(String identityProviderUserId) {
+		User user = userRepository.findByIdentityProviderUserId(identityProviderUserId)
+			.orElseThrow(() -> HttpException.notFound(Message.USER_NOT_FOUND.getMessage()));
+
+		return userMapper.toDto(user);
+	}
+
+	@Override
 	public List<UserDto> findAll() {
 		return userRepository.findAll().stream()
 			.map(userMapper::toDto)
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public UserDto create(UserDto userDto) {
+		User user = userMapper.toEntity(userDto);
+		user.setRole(Role.User);
+
+		return userMapper.toDto(userRepository.save(user));
 	}
 
 	@Override
