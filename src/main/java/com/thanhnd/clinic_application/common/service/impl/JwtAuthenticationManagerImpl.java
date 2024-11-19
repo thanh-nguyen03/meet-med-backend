@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,9 @@ public class JwtAuthenticationManagerImpl implements JwtAuthenticationManager {
 	public String getUserId() {
 		initClaims();
 		Map<String, Object> user = getClaim(JwtConstants.JWT_USER_INFO_CLAIM);
-		return Objects.requireNonNullElse(user, Map.of()).get("id").toString();
+		Object id = Objects.requireNonNullElse(user, Map.of()).get("id");
+
+		return Optional.ofNullable(id).map(Object::toString).orElse(null);
 	}
 
 	@Override

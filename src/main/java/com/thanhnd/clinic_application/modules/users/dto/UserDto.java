@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.modules.users.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thanhnd.clinic_application.common.dto.BaseDto;
 import com.thanhnd.clinic_application.constants.Role;
 import com.thanhnd.clinic_application.constants.UserGender;
@@ -12,6 +13,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonInclude
 public class UserDto extends BaseDto {
 	private String id;
 
