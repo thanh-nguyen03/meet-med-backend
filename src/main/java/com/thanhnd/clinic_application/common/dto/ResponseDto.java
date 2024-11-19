@@ -59,4 +59,8 @@ public class ResponseDto {
 	public static ResponseDto notFound(String message) {
 		return of(HttpStatus.NOT_FOUND.value(), false, message, null);
 	}
+
+	public static ResponseDto unauthorized(String message) {
+		return of(HttpStatus.UNAUTHORIZED.value(), false, message, null);
+	}
 }

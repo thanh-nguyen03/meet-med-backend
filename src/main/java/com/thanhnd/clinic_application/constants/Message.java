@@ -5,6 +5,7 @@ public enum Message {
 	OK("OK"),
 	INTERNAL_SERVER_ERROR("Internal server error"),
 	PERMISSION_DENIED("You do not have permission to access this resource!"),
+	UNAUTHORIZED("Unauthorized"),
 
 	// Users
 	USER_NOT_FOUND("User not found"),

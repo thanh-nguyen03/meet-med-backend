@@ -9,16 +9,24 @@ import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import com.thanhnd.clinic_application.modules.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ControllerPath.USER_CONTROLLER)
 @RequiredArgsConstructor
 public class UserController extends BaseController {
 	private final UserService userService;
+
+	@GetMapping("/user-info")
+	public ResponseEntity<ResponseDto> getUserInfo() {
+		String userId = jwtAuthenticationManager.getUserId();
+
+		if (userId == null) {
+			return createErrorResponse(ResponseDto.unauthorized(Message.UNAUTHORIZED.getMessage()));
+		}
+
+		return createSuccessResponse(ResponseDto.success(userService.findById(userId)));
+	}
 
 	@PutMapping("/profile")
 	public ResponseEntity<ResponseDto> updateProfile(@RequestBody UserDto userDto) {
