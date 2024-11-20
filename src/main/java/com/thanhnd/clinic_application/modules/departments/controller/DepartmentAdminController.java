@@ -4,12 +4,14 @@ import com.thanhnd.clinic_application.annotation.PermissionsAllowed;
 import com.thanhnd.clinic_application.common.controller.BaseController;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
 import com.thanhnd.clinic_application.constants.ControllerPath;
+import com.thanhnd.clinic_application.constants.PaginationConstants;
 import com.thanhnd.clinic_application.constants.Permissions;
 import com.thanhnd.clinic_application.modules.departments.dto.AddDoctorsDto;
 import com.thanhnd.clinic_application.modules.departments.dto.DepartmentDto;
 import com.thanhnd.clinic_application.modules.departments.service.DepartmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +23,15 @@ public class DepartmentAdminController extends BaseController {
 
 	@GetMapping
 	@PermissionsAllowed(Permissions.Departments.READ)
-	public ResponseEntity<ResponseDto> findAll() {
-		return createSuccessResponse(ResponseDto.success(departmentService.findAll()));
+	public ResponseEntity<ResponseDto> findAll(
+		@RequestParam(value = PaginationConstants.PAGE, defaultValue = PaginationConstants.DEFAULT_PAGE_NUMBER) int page,
+		@RequestParam(value = PaginationConstants.SIZE, defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE) int size,
+		@RequestParam(value = PaginationConstants.ORDER_BY, defaultValue = "createdAt") String orderBy,
+		@RequestParam(value = PaginationConstants.ORDER, defaultValue = "asc") String order,
+		@RequestParam(value = PaginationConstants.SEARCH, defaultValue = "") String search
+	) {
+		PageRequest pageRequest = parsePageRequest(page, size, orderBy, order);
+		return createSuccessResponse(ResponseDto.success(departmentService.findAll(pageRequest)));
 	}
 
 	@GetMapping("/{id}")

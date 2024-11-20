@@ -1,11 +1,13 @@
 package com.thanhnd.clinic_application.modules.departments.service;
 
+import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.modules.departments.dto.DepartmentDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface DepartmentService {
-	List<DepartmentDto> findAll();
+	PageableResultDto<DepartmentDto> findAll(Pageable pageable);
 
 	DepartmentDto findById(String id);
 

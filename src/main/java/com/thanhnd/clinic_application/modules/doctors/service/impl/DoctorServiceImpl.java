@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.modules.doctors.service.impl;
 
+import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.Role;
@@ -16,11 +17,12 @@ import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +37,10 @@ public class DoctorServiceImpl implements DoctorService {
 	private final DoctorMapper doctorMapper;
 
 	@Override
-	public List<DoctorDto> findAll() {
-		return doctorRepository.findAll()
-			.stream()
-			.map(doctorMapper::toDto)
-			.collect(Collectors.toList());
+	public PageableResultDto<DoctorDto> findAll(Pageable pageable) {
+		Page<Doctor> doctorPage = doctorRepository.findAll(pageable);
+
+		return PageableResultDto.parse(doctorPage.map(doctorMapper::toDto));
 	}
 
 	@Override

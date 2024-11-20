@@ -1,5 +1,6 @@
 package com.thanhnd.clinic_application.modules.departments.service.impl;
 
+import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.Role;
@@ -14,13 +15,13 @@ import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepositor
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +36,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 	private final DepartmentMapper departmentMapper;
 
 	@Override
-	public List<DepartmentDto> findAll() {
-		return departmentRepository.findAll()
-			.stream()
-			.map(departmentMapper::toDto)
-			.collect(Collectors.toList());
+	public PageableResultDto<DepartmentDto> findAll(Pageable pageable) {
+		return PageableResultDto.parse(departmentRepository.findAll(pageable).map(departmentMapper::toDto));
 	}
 
 	@Override

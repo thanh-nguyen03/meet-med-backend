@@ -1,8 +1,10 @@
 package com.thanhnd.clinic_application.modules.doctors.controller;
 
 import com.thanhnd.clinic_application.annotation.PermissionsAllowed;
+import com.thanhnd.clinic_application.common.controller.BaseController;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
 import com.thanhnd.clinic_application.constants.ControllerPath;
+import com.thanhnd.clinic_application.constants.PaginationConstants;
 import com.thanhnd.clinic_application.constants.Permissions;
 import com.thanhnd.clinic_application.modules.doctors.dto.CreateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.DoctorDto;
@@ -13,6 +15,7 @@ import com.thanhnd.clinic_application.modules.identity_providers.interfaces.Iden
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,20 +25,27 @@ import java.util.Optional;
 @RestController
 @RequestMapping(ControllerPath.DOCTOR_ADMIN_CONTROLLER)
 @RequiredArgsConstructor
-public class DoctorAdminController {
+public class DoctorAdminController extends BaseController {
 	private final DoctorService doctorService;
 	private final IdentityProviderStrategyFactory identityProviderStrategyFactory;
 
 	@GetMapping
 	@PermissionsAllowed(Permissions.Doctors.READ)
-	public ResponseEntity<ResponseDto> findAll() {
-		return ResponseEntity.ok(ResponseDto.success(doctorService.findAll()));
+	public ResponseEntity<ResponseDto> findAll(
+		@RequestParam(value = PaginationConstants.PAGE, defaultValue = PaginationConstants.DEFAULT_PAGE_NUMBER) int page,
+		@RequestParam(value = PaginationConstants.SIZE, defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE) int size,
+		@RequestParam(value = PaginationConstants.ORDER_BY, defaultValue = "createdAt") String orderBy,
+		@RequestParam(value = PaginationConstants.ORDER, defaultValue = "asc") String order,
+		@RequestParam(value = PaginationConstants.SEARCH, defaultValue = "") String search
+	) {
+		PageRequest pageRequest = parsePageRequest(page, size, orderBy, order);
+		return createSuccessResponse(ResponseDto.success(doctorService.findAll(pageRequest)));
 	}
 
 	@GetMapping("/{id}")
 	@PermissionsAllowed(Permissions.Doctors.READ)
 	public ResponseEntity<ResponseDto> findById(@PathVariable String id) {
-		return ResponseEntity.ok(ResponseDto.success(doctorService.findById(id)));
+		return createSuccessResponse(ResponseDto.success(doctorService.findById(id)));
 	}
 
 	@Transactional
@@ -53,7 +63,7 @@ public class DoctorAdminController {
 		// Create user in identity provider
 		strategy.createUser(createDoctorDto.getEmail(), createDoctorDto.getPassword());
 
-		return ResponseEntity.ok(ResponseDto.success(doctorDto));
+		return createSuccessResponse(ResponseDto.success(doctorDto));
 	}
 
 	@PutMapping("/{id}")
@@ -62,7 +72,7 @@ public class DoctorAdminController {
 		@PathVariable String id,
 		@RequestBody @Valid UpdateDoctorDto updateDoctorDto
 	) {
-		return ResponseEntity.ok(ResponseDto.success(doctorService.update(id, updateDoctorDto)));
+		return createSuccessResponse(ResponseDto.success(doctorService.update(id, updateDoctorDto)));
 	}
 
 	@Transactional
@@ -81,6 +91,6 @@ public class DoctorAdminController {
 		strategy.deleteUser(identityProviderUserId);
 
 		doctorService.delete(id);
-		return ResponseEntity.ok(ResponseDto.success());
+		return createSuccessResponse(ResponseDto.success());
 	}
 }

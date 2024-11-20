@@ -1,14 +1,14 @@
 package com.thanhnd.clinic_application.modules.doctors.service;
 
+import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.entity.Doctor;
 import com.thanhnd.clinic_application.modules.doctors.dto.CreateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.DoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface DoctorService {
-	List<DoctorDto> findAll();
+	PageableResultDto<DoctorDto> findAll(Pageable pageable);
 
 	DoctorDto findById(String id);
 
