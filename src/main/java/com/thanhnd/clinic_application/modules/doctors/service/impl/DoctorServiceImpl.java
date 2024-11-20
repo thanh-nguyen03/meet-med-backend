@@ -14,11 +14,13 @@ import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepositor
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPriceByDegreeRepository;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPriceByExperienceRepository;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
+import com.thanhnd.clinic_application.modules.doctors.specification.DoctorSpecification;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,8 +39,9 @@ public class DoctorServiceImpl implements DoctorService {
 	private final DoctorMapper doctorMapper;
 
 	@Override
-	public PageableResultDto<DoctorDto> findAll(Pageable pageable) {
-		Page<Doctor> doctorPage = doctorRepository.findAll(pageable);
+	public PageableResultDto<DoctorDto> findAll(Pageable pageable, String searchName, String searchDepartment) {
+		Specification<Doctor> specification = DoctorSpecification.filterByNameAndDepartment(searchName, searchDepartment);
+		Page<Doctor> doctorPage = doctorRepository.findAll(specification, pageable);
 
 		return PageableResultDto.parse(doctorPage.map(doctorMapper::toDto));
 	}
