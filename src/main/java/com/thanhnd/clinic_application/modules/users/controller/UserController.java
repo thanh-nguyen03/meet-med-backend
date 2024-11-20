@@ -25,7 +25,7 @@ public class UserController extends BaseController {
 			return createErrorResponse(ResponseDto.unauthorized(Message.UNAUTHORIZED.getMessage()));
 		}
 
-		return createSuccessResponse(ResponseDto.success(userService.findById(identityProviderUserId)));
+		return createSuccessResponse(ResponseDto.success(userService.findByIdentityProviderUserId(identityProviderUserId)));
 	}
 
 	@PostMapping
