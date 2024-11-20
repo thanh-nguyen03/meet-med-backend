@@ -36,10 +36,11 @@ public class DoctorAdminController extends BaseController {
 		@RequestParam(value = PaginationConstants.SIZE, defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE) int size,
 		@RequestParam(value = PaginationConstants.ORDER_BY, defaultValue = "createdAt") String orderBy,
 		@RequestParam(value = PaginationConstants.ORDER, defaultValue = "asc") String order,
-		@RequestParam(value = PaginationConstants.SEARCH, defaultValue = "") String search
+		@RequestParam(value = "name", defaultValue = "") String searchName,
+		@RequestParam(value = "department", required = false) String searchDepartment
 	) {
 		PageRequest pageRequest = parsePageRequest(page, size, orderBy, order);
-		return createSuccessResponse(ResponseDto.success(doctorService.findAll(pageRequest)));
+		return createSuccessResponse(ResponseDto.success(doctorService.findAll(pageRequest, searchName, searchDepartment)));
 	}
 
 	@GetMapping("/{id}")
