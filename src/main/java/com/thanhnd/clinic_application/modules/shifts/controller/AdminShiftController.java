@@ -7,6 +7,7 @@ import com.thanhnd.clinic_application.constants.ControllerPath;
 import com.thanhnd.clinic_application.constants.Permissions;
 import com.thanhnd.clinic_application.modules.shifts.dto.request.GenerateShiftTableRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.request.GetShiftListRequestDto;
+import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftService;
 import com.thanhnd.clinic_application.modules.shifts.service.ShiftService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminShiftController extends BaseController {
 	private final ShiftService shiftService;
+	private final RegisteredShiftService registeredShiftService;
 
 	@GetMapping
 	@PermissionsAllowed(permissions = {Permissions.Shift.READ})
@@ -31,4 +33,6 @@ public class AdminShiftController extends BaseController {
 		shiftService.createShiftTable(dto.getMonth(), dto.getYear());
 		return createSuccessResponse(ResponseDto.success());
 	}
+
+
 }

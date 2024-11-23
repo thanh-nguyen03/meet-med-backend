@@ -9,6 +9,8 @@ import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepositor
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.rooms.repository.RoomRepository;
 import com.thanhnd.clinic_application.modules.shifts.dto.RegisteredShiftDto;
+import com.thanhnd.clinic_application.modules.shifts.dto.SearchShiftForBookingResultDto;
+import com.thanhnd.clinic_application.modules.shifts.dto.request.ApproveRegisteredShiftRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.request.RegisterShiftRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftTimeSlotRepository;
@@ -39,6 +41,16 @@ public class RegisteredShiftServiceImpl implements RegisteredShiftService {
 	private final JwtAuthenticationManager jwtAuthenticationManager;
 
 	private final RegisteredShiftMapper registeredShiftMapper;
+
+	@Override
+	public List<SearchShiftForBookingResultDto> findAllByDoctorForBooking(String doctorId) {
+		Instant now = Instant.now();
+		List<RegisteredShift> registeredShifts = registeredShiftRepository.findAllForBookingByDoctorIdAndShiftStartTimeAfter(doctorId, now);
+
+		return registeredShifts.stream()
+			.map(registeredShiftMapper::toSearchShiftForBookingResultDto)
+			.toList();
+	}
 
 	@Override
 	public RegisteredShiftDto findById(String registeredShiftId) {
@@ -78,8 +90,35 @@ public class RegisteredShiftServiceImpl implements RegisteredShiftService {
 	}
 
 	@Override
-	public RegisteredShiftDto update(RegisteredShiftDto registeredShiftDto) {
-		return null;
+	public RegisteredShiftDto approvedRegisteredShift(
+		String registeredShiftId,
+		ApproveRegisteredShiftRequestDto approveRegisteredShiftRequestDto
+	) {
+		RegisteredShift registeredShift = registeredShiftRepository.findById(registeredShiftId)
+			.orElseThrow(() -> HttpException.notFound(Message.REGISTERED_SHIFT_NOT_FOUND.getMessage()));
+
+		// Check if the shift is already approved
+		if (registeredShift.getIsApproved()) {
+			throw HttpException.badRequest(Message.SHIFT_ALREADY_APPROVED.getMessage());
+		}
+
+		Room room = roomRepository.findById(approveRegisteredShiftRequestDto.getRoom().getId())
+			.orElseThrow(() -> HttpException.badRequest(Message.ROOM_NOT_FOUND.getMessage()));
+
+		// Check if the room is in the same department as the doctor
+		if (!room.getDepartment().getId().equals(registeredShift.getDoctor().getDepartment().getId())) {
+			throw HttpException.badRequest(Message.ROOM_NOT_IN_DEPARTMENT.getMessage());
+		}
+
+		// Check if room is already assigned to another shift
+		if (registeredShiftRepository.findByRoomIdAndShiftId(room.getId(), registeredShift.getShift().getId()).isPresent()) {
+			throw HttpException.badRequest(Message.ROOM_ALREADY_ASSIGNED.getMessage());
+		}
+
+		registeredShift.setRoom(room);
+		registeredShift.setIsApproved(true);
+
+		return registeredShiftMapper.toDto(registeredShiftRepository.save(registeredShift));
 	}
 
 	@Override
@@ -110,7 +149,8 @@ public class RegisteredShiftServiceImpl implements RegisteredShiftService {
 		registeredShift.setShiftPrice(doctorService.calculateDoctorShiftPrice(doctor));
 		registeredShift.setShift(shift);
 		registeredShift.setDoctor(doctor);
-
+		registeredShift.setStartTime(shift.getStartTime());
+		registeredShift.setEndTime(shift.getEndTime());
 
 		RegisteredShift saved = registeredShiftRepository.save(registeredShift);
 		List<RegisteredShiftTimeSlot> registeredShiftTimeSlotList = handleCreateRegisteredShiftTimeSlots(saved);
