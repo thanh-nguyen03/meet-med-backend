@@ -78,13 +78,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 			.findById(appointmentDto.getRegisteredShiftTimeSlot().getId())
 			.orElseThrow(() -> HttpException.notFound(Message.TIME_SLOT_NOT_FOUND.getMessage()));
 
+		if (!registeredShiftTimeSlot.getRegisteredShift().getIsApproved()) {
+			throw HttpException.badRequest(Message.SHIFT_NOT_FOUND.getMessage());
+		}
+
 		Patient patient = patientRepository.findByUserId(jwtAuthenticationManager.getUserId())
 			.orElseThrow(() -> HttpException.notFound(Message.PATIENT_NOT_FOUND.getMessage()));
 
 		List<Appointment> preBookedAppointment = appointmentRepository.findAllByRegisteredShiftTimeSlotId(registeredShiftTimeSlot.getId());
 
 		// Check if the time slot is full
-		if (preBookedAppointment.size() > RegisteredShiftTimeSlot.MAX_NUMBER_OF_PATIENTS) {
+		if (preBookedAppointment.size() >= RegisteredShiftTimeSlot.MAX_NUMBER_OF_PATIENTS) {
 			throw HttpException.badRequest(Message.TIME_SLOT_FULL.getMessage());
 		}
 
@@ -98,7 +102,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 		appointment.setPatient(patient);
 		appointment.setSymptoms(appointmentDto.getSymptoms());
 
-		return appointmentMapper.toDto(appointmentRepository.save(appointment));
+		AppointmentDto appointmentDtoList = appointmentMapper.toDto(appointmentRepository.save(appointment));
+
+		if (preBookedAppointment.size() == RegisteredShiftTimeSlot.MAX_NUMBER_OF_PATIENTS - 1) {
+			registeredShiftTimeSlot.setIsAvailable(false);
+			registeredShiftTimeSlotRepository.save(registeredShiftTimeSlot);
+		}
+
+		return appointmentDtoList;
 	}
 
 	@Override

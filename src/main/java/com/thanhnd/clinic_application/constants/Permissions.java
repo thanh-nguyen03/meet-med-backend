@@ -30,6 +30,7 @@ public class Permissions {
 	public static class RegisteredShift {
 		public static final String READ = "read:registered_shifts";
 		public static final String WRITE = "write:registered_shifts";
+		public static final String APPROVE = "approve:registed-shift";
 	}
 
 	public static class Appointment {

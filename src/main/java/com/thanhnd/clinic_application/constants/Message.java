@@ -39,6 +39,9 @@ public enum Message {
 	REGISTERED_SHIFT_NOT_FOUND("Registered shift not found"),
 	CANNOT_REGISTER_MULTIPLE_DOCTORS("Cannot register for multiple doctors"),
 	DUPLICATE_SHIFTS_IN_REQUEST("Duplicate shifts in request"),
+	SHIFT_ALREADY_APPROVED("Shift already approved"),
+	ROOM_ALREADY_ASSIGNED("Room already assigned to another shift"),
+	ROOM_NOT_IN_DEPARTMENT("Room not in the same department as the doctor"),
 
 	// Patient
 	PATIENT_NOT_FOUND("Patient profile not found"),

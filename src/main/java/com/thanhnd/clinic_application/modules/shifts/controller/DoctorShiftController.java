@@ -5,6 +5,7 @@ import com.thanhnd.clinic_application.common.controller.BaseController;
 import com.thanhnd.clinic_application.common.dto.ResponseDto;
 import com.thanhnd.clinic_application.constants.ControllerPath;
 import com.thanhnd.clinic_application.constants.Permissions;
+import com.thanhnd.clinic_application.modules.shifts.dto.request.ApproveRegisteredShiftRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.request.RegisterShiftRequestDto;
 import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftService;
 import com.thanhnd.clinic_application.modules.shifts.service.ShiftService;
@@ -38,5 +39,18 @@ public class DoctorShiftController extends BaseController {
 	@PermissionsAllowed(permissions = {Permissions.RegisteredShift.WRITE})
 	public ResponseEntity<ResponseDto> registerShifts(@RequestBody List<@Valid RegisterShiftRequestDto> registerShiftsRequestDto) {
 		return createSuccessResponse(ResponseDto.success(registeredShiftService.create(registerShiftsRequestDto)));
+	}
+
+	@PutMapping("/{registeredShiftId}/approve")
+	@PermissionsAllowed(permissions = {Permissions.RegisteredShift.APPROVE})
+	public ResponseEntity<ResponseDto> approveRegisteredShift(
+		@PathVariable String registeredShiftId,
+		@RequestBody @Valid ApproveRegisteredShiftRequestDto approveRegisteredShiftRequestDto
+	) {
+		return createSuccessResponse(
+			ResponseDto.success(
+				registeredShiftService.approvedRegisteredShift(registeredShiftId, approveRegisteredShiftRequestDto)
+			)
+		);
 	}
 }

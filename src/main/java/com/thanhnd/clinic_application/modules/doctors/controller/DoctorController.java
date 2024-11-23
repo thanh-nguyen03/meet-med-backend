@@ -7,19 +7,18 @@ import com.thanhnd.clinic_application.constants.ControllerPath;
 import com.thanhnd.clinic_application.constants.PaginationConstants;
 import com.thanhnd.clinic_application.constants.Permissions;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
+import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ControllerPath.DOCTOR_CONTROLLER)
 @RequiredArgsConstructor
 public class DoctorController extends BaseController {
 	private final DoctorService doctorService;
+	private final RegisteredShiftService registeredShiftService;
 
 	@GetMapping
 	@PermissionsAllowed(permissions = {Permissions.Doctors.READ})
@@ -33,5 +32,13 @@ public class DoctorController extends BaseController {
 	) {
 		PageRequest pageRequest = parsePageRequest(page, size, orderBy, order);
 		return createSuccessResponse(ResponseDto.success(doctorService.findAll(pageRequest, searchName, searchDepartment)));
+	}
+
+	@GetMapping("/{doctorId}/booking-shifts")
+	@PermissionsAllowed(permissions = {Permissions.Doctors.READ})
+	public ResponseEntity<ResponseDto> getDoctorShifts(
+		@PathVariable String doctorId
+	) {
+		return createSuccessResponse(ResponseDto.success(registeredShiftService.findAllByDoctorForBooking(doctorId)));
 	}
 }

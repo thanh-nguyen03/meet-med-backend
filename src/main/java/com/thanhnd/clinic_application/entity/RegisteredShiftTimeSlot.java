@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,8 +20,12 @@ public class RegisteredShiftTimeSlot extends BaseEntity {
 
 	private Instant startTime;
 	private Instant endTime;
+	private Boolean isAvailable = true;
 
 	@ManyToOne
 	@JoinColumn(name = "registered_shift_id", referencedColumnName = "id")
 	private RegisteredShift registeredShift;
+
+	@OneToMany(mappedBy = "registeredShiftTimeSlot", fetch = FetchType.LAZY)
+	private List<Appointment> appointments;
 }

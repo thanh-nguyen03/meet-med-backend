@@ -4,6 +4,7 @@ import com.thanhnd.clinic_application.entity.Department;
 import com.thanhnd.clinic_application.entity.RegisteredShift;
 import com.thanhnd.clinic_application.modules.departments.dto.DepartmentDto;
 import com.thanhnd.clinic_application.modules.shifts.dto.RegisteredShiftDto;
+import com.thanhnd.clinic_application.modules.shifts.dto.SearchShiftForBookingResultDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -15,4 +16,6 @@ public interface RegisteredShiftMapper extends IBaseMapper<RegisteredShift, Regi
 
 	@Mapping(target = "shift", ignore = true)
 	RegisteredShiftDto toDtoExcludeShift(RegisteredShift entity);
+
+	SearchShiftForBookingResultDto toSearchShiftForBookingResultDto(RegisteredShift entity);
 }
