@@ -32,4 +32,7 @@ public class Department extends BaseEntity {
 
 	@OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
 	private List<Room> rooms;
+
+	@OneToMany(mappedBy = "department")
+	private List<Symptom> symptoms;
 }

@@ -9,6 +9,8 @@ import java.util.List;
 public interface DepartmentService {
 	PageableResultDto<DepartmentDto> findAll(Pageable pageable);
 
+	List<DepartmentDto> findAll();
+
 	DepartmentDto findById(String id);
 
 	DepartmentDto create(DepartmentDto departmentDto);

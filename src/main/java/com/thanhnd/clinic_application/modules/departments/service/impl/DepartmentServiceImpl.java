@@ -41,6 +41,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 	}
 
 	@Override
+	public List<DepartmentDto> findAll() {
+		return departmentRepository.findAll().stream().map(departmentMapper::toDto).toList();
+	}
+
+	@Override
 	public DepartmentDto findById(String id) {
 		return departmentRepository.findById(id)
 			.map(departmentMapper::toDto)

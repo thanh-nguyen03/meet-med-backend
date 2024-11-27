@@ -15,6 +15,8 @@ import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPric
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorShiftPriceByExperienceRepository;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.doctors.specification.DoctorSpecification;
+import com.thanhnd.clinic_application.modules.symptom.repository.SymptomRepository;
+import com.thanhnd.clinic_application.modules.symptom.service.SymptomExtractService;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +39,27 @@ public class DoctorServiceImpl implements DoctorService {
 	private final DepartmentRepository departmentRepository;
 	private final DoctorShiftPriceByDegreeRepository doctorShiftPriceByDegreeRepository;
 	private final DoctorShiftPriceByExperienceRepository doctorShiftPriceByExperienceRepository;
+	private final SymptomRepository symptomRepository;
 
+	private final SymptomExtractService symptomExtractService;
 	private final DoctorMapper doctorMapper;
 
 	@Override
-	public PageableResultDto<DoctorDto> findAll(Pageable pageable, String searchName, String searchDepartment) {
-		Specification<Doctor> specification = DoctorSpecification.filterByNameAndDepartment(searchName, searchDepartment);
+	public PageableResultDto<DoctorDto> findAll(Pageable pageable, String search, String searchDepartment) {
+		Specification<Doctor> nameAndDepartmentSpecification = DoctorSpecification.filterByNameAndDepartment(search, searchDepartment);
+		List<String> symptomNames = symptomExtractService.extractSymptoms(search);
+
+		Set<Department> departments = new HashSet<>();
+
+		symptomNames.forEach(symptomName -> {
+			List<Symptom> symptoms = symptomRepository.findAllByNameContainingIgnoreCase(symptomName);
+			symptoms.forEach(symptom -> departments.add(symptom.getDepartment()));
+		});
+
+		Specification<Doctor> departmentSpecification = DoctorSpecification.filterByDepartments(departments.stream().map(Department::getId).toList());
+
+		Specification<Doctor> specification = nameAndDepartmentSpecification.and(departmentSpecification);
+
 		Page<Doctor> doctorPage = doctorRepository.findAll(specification, pageable);
 
 		return PageableResultDto.parse(doctorPage.map(doctorMapper::toDto));
