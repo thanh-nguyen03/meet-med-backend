@@ -9,19 +9,38 @@ import java.util.List;
 
 
 public class DoctorSpecification {
-	public static Specification<Doctor> filterByNameAndDepartment(String searchName, String searchDepartment) {
+	public static Specification<Doctor> filterByNameAndDepartment(String search, String searchDepartment) {
 		return (root, query, criteriaBuilder) -> {
 			List<Predicate> predicates = new ArrayList<>();
 
-			if (searchName != null && !searchName.isEmpty()) {
-				predicates.add(criteriaBuilder.like(
+			if (search != null && !search.isEmpty()) {
+				Predicate doctorNamePredicate = criteriaBuilder.like(
 					criteriaBuilder.lower(root.get("user").get("fullName")),
-					"%" + searchName.toLowerCase() + "%"
-				));
+					"%" + search.toLowerCase() + "%"
+				);
+
+				Predicate departmentNamePredicate = criteriaBuilder.like(
+					criteriaBuilder.lower(root.get("department").get("name")),
+					"%" + search.toLowerCase() + "%"
+				);
+
+				predicates.add(criteriaBuilder.or(doctorNamePredicate, departmentNamePredicate));
 			}
 
 			if (searchDepartment != null && !searchDepartment.isEmpty()) {
 				predicates.add(criteriaBuilder.equal(root.get("department").get("id"), searchDepartment));
+			}
+
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		};
+	}
+
+	public static Specification<Doctor> filterByDepartments(List<String> departmentIds) {
+		return (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (departmentIds != null && !departmentIds.isEmpty()) {
+				predicates.add(root.get("department").get("id").in(departmentIds));
 			}
 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

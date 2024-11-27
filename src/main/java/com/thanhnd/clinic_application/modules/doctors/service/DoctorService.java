@@ -8,7 +8,7 @@ import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
 import org.springframework.data.domain.Pageable;
 
 public interface DoctorService {
-	PageableResultDto<DoctorDto> findAll(Pageable pageable, String searchName, String searchDepartment);
+	PageableResultDto<DoctorDto> findAll(Pageable pageable, String search, String searchDepartment);
 
 	DoctorDto findById(String id);
 

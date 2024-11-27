@@ -36,6 +36,9 @@ auth0:
   audience: https://dev-otpcf3cma032xews.us.auth0.com/api/v2/
   default-user-password: ${DEFAULT_USER_PASSWORD}
 
+com:
+  thanhnd:
+    symptom-extract-service-url: ${SYMPTOM_EXTRACT_SERVICE_URL}
 
 server:
   error:
