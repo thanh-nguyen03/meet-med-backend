@@ -27,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
 	private final NotificationMapper notificationMapper;
 
 	@Override
-	public void sendNotifications(List<String> receiverIds, NotificationDto notificationDto) {
+	public List<Notification> sendNotifications(List<String> receiverIds, NotificationDto notificationDto) {
 		List<Notification> notifications = receiverIds.stream()
 			.map(receiverId -> {
 				Notification notification = notificationMapper.toEntity(notificationDto);
@@ -36,7 +36,7 @@ public class NotificationServiceImpl implements NotificationService {
 			})
 			.toList();
 
-		notificationRepository.saveAll(notifications);
+		return notificationRepository.saveAll(notifications);
 	}
 
 	@Override
