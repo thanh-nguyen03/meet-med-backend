@@ -21,4 +21,6 @@ public class ControllerPath {
 	public static final String PATIENT_CONTROLLER = "/api/patient";
 
 	public static final String APPOINTMENT_CONTROLLER = "/api/appointment";
+
+	public static final String NOTIFICATION_CONTROLLER = "/api/notification";
 }

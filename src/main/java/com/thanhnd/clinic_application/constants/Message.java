@@ -55,6 +55,9 @@ public enum Message {
 
 	// Appointment
 	APPOINTMENT_NOT_FOUND("Appointment not found"),
+
+	// Notification
+	NOTIFICATION_NOT_FOUND("Notification not found"),
 	;
 
 	private final String message;

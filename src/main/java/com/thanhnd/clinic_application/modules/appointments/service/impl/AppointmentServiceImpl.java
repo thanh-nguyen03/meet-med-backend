@@ -1,14 +1,24 @@
 package com.thanhnd.clinic_application.modules.appointments.service.impl;
 
+import com.google.gson.JsonObject;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
+import com.thanhnd.clinic_application.constants.NotificationMessage;
+import com.thanhnd.clinic_application.constants.NotificationType;
 import com.thanhnd.clinic_application.entity.*;
+import com.thanhnd.clinic_application.helper.NotificationHelper;
 import com.thanhnd.clinic_application.mapper.AppointmentMapper;
+import com.thanhnd.clinic_application.mapper.NotificationMapper;
+import com.thanhnd.clinic_application.modules.amqp.dto.AmqpMessage;
+import com.thanhnd.clinic_application.modules.amqp.service.AmqpService;
 import com.thanhnd.clinic_application.modules.appointments.dto.AppointmentDto;
 import com.thanhnd.clinic_application.modules.appointments.repository.AppointmentRepository;
 import com.thanhnd.clinic_application.modules.appointments.service.AppointmentService;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
+import com.thanhnd.clinic_application.modules.notifications.dto.AmqpNotificationMessageDto;
+import com.thanhnd.clinic_application.modules.notifications.dto.NotificationDto;
+import com.thanhnd.clinic_application.modules.notifications.service.NotificationService;
 import com.thanhnd.clinic_application.modules.patients.repository.PatientRepository;
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftRepository;
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftTimeSlotRepository;
@@ -30,6 +40,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 	private final DoctorRepository doctorRepository;
 
 	private final AppointmentMapper appointmentMapper;
+	private final NotificationMapper notificationMapper;
+
+	private final NotificationService notificationService;
+	private final AmqpService amqpService;
 
 	@Override
 	public List<AppointmentDto> findAllInRegisteredShift(String registeredShiftId) {
@@ -102,14 +116,42 @@ public class AppointmentServiceImpl implements AppointmentService {
 		appointment.setPatient(patient);
 		appointment.setSymptoms(appointmentDto.getSymptoms());
 
-		AppointmentDto appointmentDtoList = appointmentMapper.toDto(appointmentRepository.save(appointment));
+		AppointmentDto returnedAppointmentDto = appointmentMapper.toDto(appointmentRepository.save(appointment));
 
 		if (preBookedAppointment.size() == RegisteredShiftTimeSlot.MAX_NUMBER_OF_PATIENTS - 1) {
 			registeredShiftTimeSlot.setIsAvailable(false);
 			registeredShiftTimeSlotRepository.save(registeredShiftTimeSlot);
 		}
 
-		return appointmentDtoList;
+		// Save notification
+		NotificationDto notificationDto = new NotificationDto();
+		notificationDto.setTitle(NotificationMessage.APPOINTMENT_BOOKED_TITLE.getMessage());
+		notificationDto.setContent(NotificationMessage.APPOINTMENT_BOOKED_MESSAGE.getMessage());
+		notificationDto.setType(NotificationType.BOOK_APPOINTMENT_SUCCESS);
+		notificationDto.setReceiverId(patient.getUser().getId());
+		JsonObject data = new JsonObject();
+		data.addProperty("appointmentId", returnedAppointmentDto.getId());
+		notificationDto.setObjectData(data.toString());
+
+		List<String> receiverIds = List.of(patient.getUser().getId());
+		List<Notification> notifications = notificationService.sendNotifications(receiverIds, notificationDto);
+
+		// Send notifications message
+		for (Notification notification : notifications) {
+			AmqpNotificationMessageDto notificationMessageDto = new AmqpNotificationMessageDto();
+			notificationMessageDto.setNotification(notificationMapper.toDto(notification));
+			notificationMessageDto.setRoomName(
+				NotificationHelper.getNotificationRoomNameByUserId(notification.getReceiverId())
+			);
+			amqpService.produceMessage(
+				AmqpMessage.builder()
+					.timestamp(notification.getCreatedAt())
+					.content(notificationMessageDto)
+					.build()
+			);
+		}
+
+		return returnedAppointmentDto;
 	}
 
 	@Override
