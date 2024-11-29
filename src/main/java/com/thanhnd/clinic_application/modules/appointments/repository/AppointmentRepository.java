@@ -5,6 +5,7 @@ import com.thanhnd.clinic_application.entity.Appointment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,10 @@ public interface AppointmentRepository extends BaseRepository<Appointment, Strin
 
 	@Query("SELECT a FROM Appointment a WHERE a.registeredShiftTimeSlot.registeredShift.id = :registeredShiftId")
 	List<Appointment> findAllByRegisteredShiftId(String registeredShiftId);
+
+	@Query("SELECT a FROM Appointment a " +
+		"WHERE a.registeredShiftTimeSlot.startTime >= :startDateTime " +
+		"AND a.registeredShiftTimeSlot.startTime <= :endDateTime"
+	)
+	List<Appointment> findAllByDateTimeBetween(Instant startDateTime, Instant endDateTime);
 }
