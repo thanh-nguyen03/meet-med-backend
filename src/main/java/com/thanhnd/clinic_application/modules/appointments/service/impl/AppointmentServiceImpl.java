@@ -16,6 +16,8 @@ import com.thanhnd.clinic_application.modules.appointments.dto.AppointmentDto;
 import com.thanhnd.clinic_application.modules.appointments.repository.AppointmentRepository;
 import com.thanhnd.clinic_application.modules.appointments.service.AppointmentService;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
+import com.thanhnd.clinic_application.modules.fcm_device_token.dto.FcmDeviceTokenDto;
+import com.thanhnd.clinic_application.modules.fcm_device_token.service.FcmDeviceTokenService;
 import com.thanhnd.clinic_application.modules.notifications.dto.AmqpNotificationMessageDto;
 import com.thanhnd.clinic_application.modules.notifications.dto.NotificationDto;
 import com.thanhnd.clinic_application.modules.notifications.service.NotificationService;
@@ -44,6 +46,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 	private final NotificationService notificationService;
 	private final AmqpService amqpService;
+	private final FcmDeviceTokenService fcmDeviceTokenService;
 
 	@Override
 	public List<AppointmentDto> findAllInRegisteredShift(String registeredShiftId) {
@@ -142,6 +145,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 			notificationMessageDto.setNotification(notificationMapper.toDto(notification));
 			notificationMessageDto.setRoomName(
 				NotificationHelper.getNotificationRoomNameByUserId(notification.getReceiverId())
+			);
+			notificationMessageDto.setDeviceTokens(
+				fcmDeviceTokenService.findAllByUserId(notification.getReceiverId())
+					.stream()
+					.map(FcmDeviceTokenDto::getToken)
+					.toList()
 			);
 			amqpService.produceMessage(
 				AmqpMessage.builder()
