@@ -26,4 +26,7 @@ public interface RegisteredShiftRepository extends BaseRepository<RegisteredShif
 	List<RegisteredShift> findAllForBookingByDoctorIdAndShiftStartTimeAfter(String doctorId, Instant startTime);
 
 	Optional<RegisteredShift> findByRoomIdAndShiftId(String roomId, String shiftId);
+
+	@Query("SELECT rs FROM RegisteredShift rs WHERE rs.startTime >= :startDateTime AND rs.startTime <= :endDateTime AND rs.isApproved = TRUE")
+	List<RegisteredShift> findAllByDateTimeBetween(Instant startDateTime, Instant endDateTime);
 }
