@@ -1,6 +1,7 @@
 package com.thanhnd.clinic_application.modules.doctors.dto;
 
 import com.thanhnd.clinic_application.constants.ValidationMessage;
+import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,4 +26,7 @@ public class UpdateDoctorDto {
 	@NotBlank(message = ValidationMessage.DOCTOR_DESCRIPTION_REQUIRED)
 	@Size(max = 2000, message = ValidationMessage.DOCTOR_DESCRIPTION_LENGTH)
 	private String description;
+
+	@NotNull(message = ValidationMessage.USER_REQUIRED)
+	private UserDto user;
 }

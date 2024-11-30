@@ -17,6 +17,7 @@ import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.doctors.specification.DoctorSpecification;
 import com.thanhnd.clinic_application.modules.symptom.repository.SymptomRepository;
 import com.thanhnd.clinic_application.modules.symptom.service.SymptomExtractService;
+import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -113,11 +114,23 @@ public class DoctorServiceImpl implements DoctorService {
 		Doctor doctor = this.doctorRepository.findByIdOrUserId(id)
 			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
 
+		User user = doctor.getUser();
+
+		UserDto userDto = updateDoctorDto.getUser();
+		user.setFullName(userDto.getFullName());
+		user.setGender(userDto.getGender());
+		user.setPhone(userDto.getPhone());
+		user.setAge(userDto.getAge());
+		user.setImageUrl(userDto.getImageUrl());
+		User updatedUser = userRepository.save(user);
+
 		doctor.setYearsOfExperience(updateDoctorDto.getYearsOfExperience());
 		doctor.setDegree(updateDoctorDto.getDegree());
 		doctor.setDescription(updateDoctorDto.getDescription());
 		doctor.setNumberOfPatients(updateDoctorDto.getNumberOfPatients());
 		doctor.setNumberOfCertificates(updateDoctorDto.getNumberOfCertificates());
+
+		doctor.setUser(updatedUser);
 
 		return doctorMapper.toDto(doctorRepository.save(doctor));
 	}
