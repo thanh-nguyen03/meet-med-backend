@@ -22,4 +22,11 @@ public class AppointmentSpecification {
 			doctorId
 		);
 	}
+
+	public static Specification<Appointment> ofPatientUserId(String userId) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+			root.get("patient").get("user").get("id"),
+			userId
+		);
+	}
 }
