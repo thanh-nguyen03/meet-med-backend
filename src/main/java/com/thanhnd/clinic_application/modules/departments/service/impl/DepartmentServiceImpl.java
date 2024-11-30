@@ -63,6 +63,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 		Department department = new Department();
 		department.setName(StringHelper.toTitleCase(departmentDto.getName()));
 		department.setDescription(departmentDto.getDescription().trim());
+		department.setImageUrl(departmentDto.getImageUrl());
 
 		return departmentMapper.toDto(departmentRepository.save(department));
 	}
@@ -74,6 +75,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 		existingDepartment.setName(StringHelper.toTitleCase(departmentDto.getName()));
 		existingDepartment.setDescription(departmentDto.getDescription().trim());
+		existingDepartment.setImageUrl(departmentDto.getImageUrl());
 
 		return departmentMapper.toDto(departmentRepository.save(existingDepartment));
 	}

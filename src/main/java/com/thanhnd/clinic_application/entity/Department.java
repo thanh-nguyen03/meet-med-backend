@@ -23,6 +23,8 @@ public class Department extends BaseEntity {
 	@Column(nullable = false)
 	private String description;
 
+	private String imageUrl;
+
 	@OneToMany(mappedBy = "department", cascade = CascadeType.REMOVE)
 	private List<Doctor> doctors;
 
