@@ -5,8 +5,6 @@ import com.thanhnd.clinic_application.constants.AppointmentStatus;
 import com.thanhnd.clinic_application.modules.appointments.dto.AppointmentDto;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface AppointmentService {
 	PageableResultDto<AppointmentDto> findAllForDoctor(
 		Pageable pageable,
@@ -14,7 +12,7 @@ public interface AppointmentService {
 		AppointmentStatus appointmentStatus
 	);
 
-	List<AppointmentDto> findAllByPatientUserId(String userId);
+	PageableResultDto<AppointmentDto> findAllByPatientUserId(Pageable pageable, String userId, AppointmentStatus status);
 
 	AppointmentDto findById(String id);
 

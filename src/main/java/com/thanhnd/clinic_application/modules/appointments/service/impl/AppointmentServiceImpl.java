@@ -94,11 +94,20 @@ public class AppointmentServiceImpl implements AppointmentService {
 	}
 
 	@Override
-	public List<AppointmentDto> findAllByPatientUserId(String userId) {
-		return appointmentRepository.findAllByPatientUserId(userId)
-			.stream()
-			.map(appointmentMapper::toDto)
-			.toList();
+	public PageableResultDto<AppointmentDto> findAllByPatientUserId(
+		Pageable pageable,
+		String userId,
+		AppointmentStatus status
+	) {
+		Specification<Appointment> specification = AppointmentSpecification.ofPatientUserId(userId);
+
+		if (status != null) {
+			specification = specification.and(AppointmentSpecification.hasStatus(status));
+		}
+
+		Page<Appointment> appointmentPage = appointmentRepository.findAll(specification, pageable);
+
+		return PageableResultDto.parse(appointmentPage.map(appointmentMapper::toDto));
 	}
 
 	@Override
