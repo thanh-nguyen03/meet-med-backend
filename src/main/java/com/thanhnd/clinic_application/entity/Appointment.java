@@ -17,6 +17,9 @@ public class Appointment extends BaseEntity {
 	private String symptoms;
 	private AppointmentStatus status = AppointmentStatus.UPCOMING;
 
+	private Boolean is24HourNotificationSent = false;
+	private Boolean is1HourNotificationSent = false;
+
 	@ManyToOne
 	@JoinColumn(name = "registered_shift_time_slot_id", referencedColumnName = "id")
 	private RegisteredShiftTimeSlot registeredShiftTimeSlot;
