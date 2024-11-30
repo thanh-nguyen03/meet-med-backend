@@ -44,10 +44,10 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 		Instant now = Instant.now();
 		Instant next24Hour = Instant.now().plusSeconds(24 * 60 * 60);
 
-		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetween(now, next24Hour);
+		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetweenAAndIs24HourNotificationSentFalse(now, next24Hour);
 
 		appointments.forEach(appointment -> {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 			LocalDateTime appointmentStartTime = appointment
 				.getRegisteredShiftTimeSlot()
 				.getStartTime()
@@ -64,6 +64,8 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 				appointmentStartTime.format(formatter)
 			);
 			sendNotification(appointment, message);
+			appointment.setIs24HourNotificationSent(true);
+			appointmentRepository.save(appointment);
 		});
 	}
 
@@ -73,7 +75,7 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 		Instant now = Instant.now();
 		Instant next1Hour = Instant.now().plusSeconds(60 * 60);
 
-		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetween(now, next1Hour);
+		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetweenAAndIs1HourNotificationSentFalse(now, next1Hour);
 
 		appointments.forEach(appointment -> {
 			String message = NotificationMessage.APPOINTMENT_REMINDER_1_HOUR_MESSAGE.getMessage(
@@ -85,6 +87,8 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 					.getFullName()
 			);
 			sendNotification(appointment, message);
+			appointment.setIs1HourNotificationSent(true);
+			appointmentRepository.save(appointment);
 		});
 	}
 
