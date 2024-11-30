@@ -23,6 +23,7 @@ public class User extends BaseEntity {
 	private String fullName;
 	private Integer age;
 	private String phone;
+	private String imageUrl;
 
 	@Column(unique = true)
 	private String identityProviderId;

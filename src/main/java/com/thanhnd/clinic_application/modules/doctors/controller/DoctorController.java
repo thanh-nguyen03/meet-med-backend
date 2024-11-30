@@ -6,6 +6,7 @@ import com.thanhnd.clinic_application.common.dto.ResponseDto;
 import com.thanhnd.clinic_application.constants.ControllerPath;
 import com.thanhnd.clinic_application.constants.PaginationConstants;
 import com.thanhnd.clinic_application.constants.Permissions;
+import com.thanhnd.clinic_application.modules.doctors.dto.UpdateDoctorDto;
 import com.thanhnd.clinic_application.modules.doctors.service.DoctorService;
 import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,20 @@ public class DoctorController extends BaseController {
 	) {
 		PageRequest pageRequest = parsePageRequest(page, size, orderBy, order);
 		return createSuccessResponse(ResponseDto.success(doctorService.findAll(pageRequest, search, searchDepartment)));
+	}
+
+	@GetMapping("/my-profile")
+	public ResponseEntity<ResponseDto> getMyProfile() {
+		String userId = jwtAuthenticationManager.getUserId();
+		return createSuccessResponse(ResponseDto.success(doctorService.findByUserId(userId)));
+	}
+
+	@PutMapping("/my-profile")
+	public ResponseEntity<ResponseDto> updateMyProfile(
+		@RequestBody UpdateDoctorDto updateDoctorDto
+	) {
+		String userId = jwtAuthenticationManager.getUserId();
+		return createSuccessResponse(ResponseDto.success(doctorService.update(userId, updateDoctorDto)));
 	}
 
 	@GetMapping("/{doctorId}/booking-shifts")

@@ -19,6 +19,8 @@ public class Doctor extends BaseEntity {
 
 	private Integer yearsOfExperience;
 	private String degree;
+	private Integer numberOfPatients;
+	private Integer numberOfCertificates;
 
 	@Column(length = 2000)
 	private String description;

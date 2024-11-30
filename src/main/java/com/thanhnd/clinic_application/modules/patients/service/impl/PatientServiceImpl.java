@@ -60,10 +60,10 @@ public class PatientServiceImpl implements PatientService {
 		user.setGender(userDto.getGender());
 		user.setFullName(userDto.getFullName());
 		user.setPhone(userDto.getPhone());
+		user.setImageUrl(userDto.getImageUrl());
 		userRepository.save(user);
 
 		profile.setUser(user);
-
 
 		return patientMapper.toDto(patientRepository.save(profile));
 	}
@@ -88,6 +88,7 @@ public class PatientServiceImpl implements PatientService {
 		user.setGender(userDto.getGender());
 		user.setFullName(userDto.getFullName());
 		user.setPhone(userDto.getPhone());
+		user.setImageUrl(userDto.getImageUrl());
 		User updatedUser = userRepository.save(user);
 
 		profile.setUser(updatedUser);

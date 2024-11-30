@@ -73,6 +73,13 @@ public class DoctorServiceImpl implements DoctorService {
 	}
 
 	@Override
+	public DoctorDto findByUserId(String userId) {
+		return doctorRepository.findByUserId(userId)
+			.map(doctorMapper::toDto)
+			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
+	}
+
+	@Override
 	public DoctorDto create(CreateDoctorDto createDoctorDto) {
 		Optional<User> existing = userRepository.findByEmail(createDoctorDto.getEmail());
 
@@ -103,16 +110,14 @@ public class DoctorServiceImpl implements DoctorService {
 
 	@Override
 	public DoctorDto update(String id, UpdateDoctorDto updateDoctorDto) {
-		Doctor doctor = this.doctorRepository.findById(id)
+		Doctor doctor = this.doctorRepository.findByIdOrUserId(id)
 			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
-
-		Department department = this.departmentRepository.findById(updateDoctorDto.getDepartmentId())
-			.orElseThrow(() -> HttpException.notFound(Message.DEPARTMENT_NOT_FOUND.getMessage()));
 
 		doctor.setYearsOfExperience(updateDoctorDto.getYearsOfExperience());
 		doctor.setDegree(updateDoctorDto.getDegree());
 		doctor.setDescription(updateDoctorDto.getDescription());
-		doctor.setDepartment(department);
+		doctor.setNumberOfPatients(updateDoctorDto.getNumberOfPatients());
+		doctor.setNumberOfCertificates(updateDoctorDto.getNumberOfCertificates());
 
 		return doctorMapper.toDto(doctorRepository.save(doctor));
 	}

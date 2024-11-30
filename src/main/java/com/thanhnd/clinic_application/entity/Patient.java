@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Entity
@@ -13,6 +15,7 @@ public class Patient extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 
+	private LocalDate dateOfBirth;
 	private String addressLine;
 	private String district;
 	private String city;
