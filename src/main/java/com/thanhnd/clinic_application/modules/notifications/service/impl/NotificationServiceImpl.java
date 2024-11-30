@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public PageableResultDto<NotificationDto> getNotifications(String receiverId, Pageable pageable) {
-		return PageableResultDto.parse(notificationRepository.findAll(pageable).map(notificationMapper::toDto));
+		return PageableResultDto.parse(notificationRepository.findAllByReceiverId(receiverId, pageable).map(notificationMapper::toDto));
 	}
 
 	@Override
