@@ -23,6 +23,9 @@ public class DepartmentDto extends BaseDto {
 	@Size(max = 2000, message = ValidationMessage.DEPARTMENT_DESCRIPTION_LENGTH)
 	private String description;
 
+	@NotBlank(message = ValidationMessage.DEPARTMENT_IMAGE_URL_REQUIRED)
+	private String imageUrl;
+
 	private List<DoctorDto> doctors;
 
 	private DoctorDto headDoctor;
