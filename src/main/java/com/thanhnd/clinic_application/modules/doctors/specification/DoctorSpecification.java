@@ -41,6 +41,8 @@ public class DoctorSpecification {
 
 			if (departmentIds != null && !departmentIds.isEmpty()) {
 				predicates.add(root.get("department").get("id").in(departmentIds));
+			} else {
+				predicates.add(criteriaBuilder.isNull(root.get("department").get("id")));
 			}
 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

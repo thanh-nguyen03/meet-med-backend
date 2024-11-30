@@ -59,7 +59,7 @@ public class DoctorServiceImpl implements DoctorService {
 
 		Specification<Doctor> departmentSpecification = DoctorSpecification.filterByDepartments(departments.stream().map(Department::getId).toList());
 
-		Specification<Doctor> specification = nameAndDepartmentSpecification.and(departmentSpecification);
+		Specification<Doctor> specification = nameAndDepartmentSpecification.or(departmentSpecification);
 
 		Page<Doctor> doctorPage = doctorRepository.findAll(specification, pageable);
 
