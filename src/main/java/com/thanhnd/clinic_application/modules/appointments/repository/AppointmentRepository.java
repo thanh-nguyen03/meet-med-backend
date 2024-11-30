@@ -13,7 +13,7 @@ public interface AppointmentRepository extends BaseRepository<Appointment, Strin
 	List<Appointment> findAllByRegisteredShiftTimeSlotId(String registeredShiftTimeSlotId);
 
 	@Query("SELECT a FROM Appointment a WHERE a.patient.user.id = :userId")
-	List<Appointment> findAllByUserId(String userId);
+	List<Appointment> findAllByPatientUserId(String userId);
 
 	@Query("SELECT a FROM Appointment a WHERE a.registeredShiftTimeSlot.registeredShift.id = :registeredShiftId")
 	List<Appointment> findAllByRegisteredShiftId(String registeredShiftId);

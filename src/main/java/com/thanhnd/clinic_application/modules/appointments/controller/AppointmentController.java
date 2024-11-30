@@ -21,7 +21,7 @@ public class AppointmentController extends BaseController {
 	@GetMapping
 	public ResponseEntity<ResponseDto> getMyAppointments() {
 		String userId = jwtAuthenticationManager.getUserId();
-		return createSuccessResponse(ResponseDto.success(appointmentService.findAllByUserId(userId)));
+		return createSuccessResponse(ResponseDto.success(appointmentService.findAllByPatientUserId(userId)));
 	}
 
 	@GetMapping("/{appointmentId}")

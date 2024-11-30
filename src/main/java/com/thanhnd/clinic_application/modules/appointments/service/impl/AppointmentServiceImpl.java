@@ -1,8 +1,10 @@
 package com.thanhnd.clinic_application.modules.appointments.service.impl;
 
 import com.google.gson.JsonObject;
+import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
+import com.thanhnd.clinic_application.constants.AppointmentStatus;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.NotificationMessage;
 import com.thanhnd.clinic_application.constants.NotificationType;
@@ -15,6 +17,7 @@ import com.thanhnd.clinic_application.modules.amqp.service.AmqpService;
 import com.thanhnd.clinic_application.modules.appointments.dto.AppointmentDto;
 import com.thanhnd.clinic_application.modules.appointments.repository.AppointmentRepository;
 import com.thanhnd.clinic_application.modules.appointments.service.AppointmentService;
+import com.thanhnd.clinic_application.modules.appointments.specification.AppointmentSpecification;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
 import com.thanhnd.clinic_application.modules.fcm_device_token.dto.FcmDeviceTokenDto;
 import com.thanhnd.clinic_application.modules.fcm_device_token.service.FcmDeviceTokenService;
@@ -26,8 +29,12 @@ import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftR
 import com.thanhnd.clinic_application.modules.shifts.repository.RegisteredShiftTimeSlotRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,38 +44,58 @@ public class AppointmentServiceImpl implements AppointmentService {
 	private final AppointmentRepository appointmentRepository;
 	private final RegisteredShiftTimeSlotRepository registeredShiftTimeSlotRepository;
 	private final RegisteredShiftRepository registeredShiftRepository;
-	private final JwtAuthenticationManager jwtAuthenticationManager;
 	private final PatientRepository patientRepository;
 	private final DoctorRepository doctorRepository;
 
 	private final AppointmentMapper appointmentMapper;
 	private final NotificationMapper notificationMapper;
 
+	private final JwtAuthenticationManager jwtAuthenticationManager;
 	private final NotificationService notificationService;
 	private final AmqpService amqpService;
 	private final FcmDeviceTokenService fcmDeviceTokenService;
 
 	@Override
-	public List<AppointmentDto> findAllInRegisteredShift(String registeredShiftId) {
+	public PageableResultDto<AppointmentDto> findAllForDoctor(
+		Pageable pageable,
+		String registeredShiftId,
+		AppointmentStatus appointmentStatus
+	) {
+		List<Specification<Appointment>> specifications = new ArrayList<>();
+
 		Doctor doctor = doctorRepository.findByUserId(jwtAuthenticationManager.getUserId())
 			.orElseThrow(() -> HttpException.notFound(Message.DOCTOR_NOT_FOUND.getMessage()));
 
-		RegisteredShift registeredShift = registeredShiftRepository.findById(registeredShiftId)
-			.orElseThrow(() -> HttpException.notFound(Message.REGISTERED_SHIFT_NOT_FOUND.getMessage()));
+		specifications.add(AppointmentSpecification.ofDoctor(doctor.getId()));
 
-		if (!registeredShift.getDoctor().getId().equals(doctor.getId())) {
-			throw HttpException.forbidden(Message.PERMISSION_DENIED.getMessage());
+		if (registeredShiftId != null && !registeredShiftId.isEmpty()) {
+			RegisteredShift registeredShift = registeredShiftRepository.findById(registeredShiftId)
+				.orElseThrow(() -> HttpException.notFound(Message.REGISTERED_SHIFT_NOT_FOUND.getMessage()));
+
+			if (!registeredShift.getDoctor().getId().equals(doctor.getId())) {
+				throw HttpException.forbidden(Message.PERMISSION_DENIED.getMessage());
+			}
+
+			specifications.add(AppointmentSpecification.inRegisteredShift(registeredShiftId));
 		}
 
-		return appointmentRepository.findAllByRegisteredShiftId(registeredShiftId)
+		if (appointmentStatus != null) {
+			specifications.add(AppointmentSpecification.hasStatus(appointmentStatus));
+		}
+
+		Specification<Appointment> specification = specifications
 			.stream()
-			.map(appointmentMapper::toDto)
-			.toList();
+			.reduce(Specification::and)
+			.orElse(null);
+
+		Page<Appointment> appointmentPage = appointmentRepository.findAll(specification, pageable);
+
+		return PageableResultDto.parse(appointmentPage.map(appointmentMapper::toDto));
 	}
 
 	@Override
-	public List<AppointmentDto> findAllByUserId(String userId) {
-		return appointmentRepository.findAllByUserId(userId)
+	public List<AppointmentDto> findAllByPatientUserId(String userId) {
+		return appointmentRepository.findAllByPatientUserId(userId)
 			.stream()
 			.map(appointmentMapper::toDto)
 			.toList();
@@ -201,5 +228,21 @@ public class AppointmentServiceImpl implements AppointmentService {
 			.orElseThrow(() -> HttpException.notFound(Message.APPOINTMENT_NOT_FOUND.getMessage()));
 
 		appointmentRepository.delete(appointment);
+	}
+
+	@Override
+	public AppointmentDto updateStatus(String appointmentId, AppointmentStatus status) {
+		Appointment appointment = appointmentRepository.findById(appointmentId)
+			.orElseThrow(() -> HttpException.notFound(Message.APPOINTMENT_NOT_FOUND.getMessage()));
+
+		Doctor doctor = doctorRepository.findByUserId(jwtAuthenticationManager.getUserId())
+			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
+
+		if (!appointment.getRegisteredShiftTimeSlot().getRegisteredShift().getDoctor().getId().equals(doctor.getId())) {
+			throw HttpException.forbidden(Message.PERMISSION_DENIED.getMessage());
+		}
+
+		appointment.setStatus(status);
+		return appointmentMapper.toDto(appointmentRepository.save(appointment));
 	}
 }
