@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,7 +87,7 @@ public class ShiftServiceImpl implements ShiftService {
 		Instant start = DateHelper.getStartOfDay(nextDay);
 		Instant end = DateHelper.getEndOfDay(nextWeek);
 
-		return getListByDoctorIdAndTime(doctor, start, end);
+		return getListByDoctorIdAndTime(doctor, start, end, true);
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class ShiftServiceImpl implements ShiftService {
 		Instant start = DateHelper.getStartOfDay(startOfWeek);
 		Instant end = DateHelper.getEndOfDay(endOfWeek);
 
-		return getListByDoctorIdAndTime(doctor, start, end);
+		return getListByDoctorIdAndTime(doctor, start, end, false);
 	}
 
 	private void createShiftTableForDay(LocalDateTime date) {
@@ -132,13 +133,28 @@ public class ShiftServiceImpl implements ShiftService {
 		shiftRepository.save(shift);
 	}
 
-	private List<CanRegisterShiftDto> getListByDoctorIdAndTime(Doctor doctor, Instant start, Instant end) {
+	private List<CanRegisterShiftDto> getListByDoctorIdAndTime(Doctor doctor, Instant start, Instant end, Boolean filterNotRegistered) {
 		List<Shift> shifts = shiftRepository.findAllByTimeBetween(start, end);
 		List<RegisteredShift> registeredShifts = registeredShiftRepository.findAllByDoctorIdAndShiftTimeBetween(doctor.getId(), start, end);
 		Department department = doctor.getDepartment();
 		List<Room> departmentRooms = roomRepository.findAllByDepartmentId(department.getId());
 
+		Predicate<Shift> filterShift = (shift) -> {
+			// Check if the shift is already registered by the doctor
+			RegisteredShift foundRegisteredShift = registeredShifts.stream()
+				.filter(registeredShift -> registeredShift.getShift().getId().equals(shift.getId()))
+				.findFirst()
+				.orElse(null);
+
+			if (filterNotRegistered) {
+				return foundRegisteredShift == null;
+			} else {
+				return true;
+			}
+		};
+
 		return shifts.stream()
+			.filter(filterShift)
 			.map((shift) -> {
 				CanRegisterShiftDto canRegisterShiftDto = new CanRegisterShiftDto(shift);
 				// Check if the shift is already registered by the doctor
