@@ -24,6 +24,12 @@ public class ValidationMessage {
 	// Degree
 	public static final String DOCTOR_DEGREE_REQUIRED = "Doctor's degree is required";
 
+	// Number of patients
+	public static final String DOCTOR_NUMBER_OF_PATIENTS_REQUIRED = "Doctor's number of patients is required";
+
+	// Number of certificates
+	public static final String DOCTOR_NUMBER_OF_CERTIFICATES_REQUIRED = "Doctor's number of certificates is required";
+
 	// Description
 	public static final String DOCTOR_DESCRIPTION_REQUIRED = "Doctor's description is required";
 	public static final String DOCTOR_DESCRIPTION_LENGTH = "Doctor's description length must not exceed 2000 characters";

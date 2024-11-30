@@ -12,6 +12,8 @@ public interface DoctorService {
 
 	DoctorDto findById(String id);
 
+	DoctorDto findByUserId(String userId);
+
 	DoctorDto create(CreateDoctorDto createDoctorDto);
 
 	DoctorDto update(String id, UpdateDoctorDto updateDoctorDto);

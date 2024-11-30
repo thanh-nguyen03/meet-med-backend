@@ -16,10 +16,13 @@ public class UpdateDoctorDto {
 	@NotBlank(message = ValidationMessage.DOCTOR_DEGREE_REQUIRED)
 	private String degree;
 
+	@NotBlank(message = ValidationMessage.DOCTOR_NUMBER_OF_PATIENTS_REQUIRED)
+	private Integer numberOfPatients;
+
+	@NotBlank(message = ValidationMessage.DOCTOR_NUMBER_OF_CERTIFICATES_REQUIRED)
+	private Integer numberOfCertificates;
+
 	@NotBlank(message = ValidationMessage.DOCTOR_DESCRIPTION_REQUIRED)
 	@Size(max = 2000, message = ValidationMessage.DOCTOR_DESCRIPTION_LENGTH)
 	private String description;
-
-	@NotBlank(message = ValidationMessage.DEPARTMENT_REQUIRED)
-	private String departmentId;
 }

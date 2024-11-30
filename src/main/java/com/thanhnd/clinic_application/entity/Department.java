@@ -23,10 +23,10 @@ public class Department extends BaseEntity {
 	@Column(nullable = false)
 	private String description;
 
-	@OneToMany(mappedBy = "department")
+	@OneToMany(mappedBy = "department", cascade = CascadeType.REMOVE)
 	private List<Doctor> doctors;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "head_doctor_id", referencedColumnName = "id")
 	private Doctor headDoctor;
 
