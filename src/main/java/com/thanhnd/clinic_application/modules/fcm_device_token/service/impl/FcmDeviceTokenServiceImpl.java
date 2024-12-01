@@ -40,6 +40,7 @@ public class FcmDeviceTokenServiceImpl implements FcmDeviceTokenService {
 			FcmDeviceToken newFcmDeviceToken = new FcmDeviceToken();
 			newFcmDeviceToken.setToken(registerFcmDeviceTokenRequestDto.getToken());
 			newFcmDeviceToken.setUser(user);
+			fcmDeviceTokenRepository.deleteAllByUserId(user.getId());
 			return fcmDeviceTokenMapper.toDto(fcmDeviceTokenRepository.save(newFcmDeviceToken));
 		}
 	}

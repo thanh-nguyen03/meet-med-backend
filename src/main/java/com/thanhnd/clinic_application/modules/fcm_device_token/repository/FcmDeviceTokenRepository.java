@@ -12,4 +12,6 @@ public interface FcmDeviceTokenRepository extends BaseRepository<FcmDeviceToken,
 	Optional<FcmDeviceToken> findByToken(String token);
 
 	List<FcmDeviceToken> findAllByUserId(String userId);
+
+	void deleteAllByUserId(String userId);
 }
