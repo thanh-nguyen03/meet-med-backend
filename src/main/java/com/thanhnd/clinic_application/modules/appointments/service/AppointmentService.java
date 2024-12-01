@@ -16,6 +16,8 @@ public interface AppointmentService {
 
 	AppointmentDto findById(String id);
 
+	AppointmentDto findByIdForDoctor(String appointmentId);
+
 	AppointmentDto create(AppointmentDto appointmentDto);
 
 	AppointmentDto update(AppointmentDto appointmentDto);

@@ -32,6 +32,11 @@ public class AppointmentDoctorController extends BaseController {
 		));
 	}
 
+	@GetMapping("/{appointmentId}")
+	public ResponseEntity<ResponseDto> getAppointmentById(@PathVariable String appointmentId) {
+		return createSuccessResponse(ResponseDto.success(appointmentService.findByIdForDoctor(appointmentId)));
+	}
+
 	@PutMapping("/{appointmentId}/complete")
 	public ResponseEntity<ResponseDto> completeAppointment(@PathVariable String appointmentId) {
 		return createSuccessResponse(ResponseDto.success(

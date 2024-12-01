@@ -126,6 +126,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 	}
 
 	@Override
+	public AppointmentDto findByIdForDoctor(String appointmentId) {
+		String userId = jwtAuthenticationManager.getUserId();
+		Doctor doctor = doctorRepository.findByUserId(userId)
+			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
+
+		Appointment appointment = appointmentRepository.findById(appointmentId)
+			.orElseThrow(() -> HttpException.notFound(Message.APPOINTMENT_NOT_FOUND.getMessage()));
+
+		return appointmentMapper.toDto(appointment);
+	}
+
+	@Override
 	public AppointmentDto create(AppointmentDto appointmentDto) {
 		RegisteredShiftTimeSlot registeredShiftTimeSlot = registeredShiftTimeSlotRepository
 			.findById(appointmentDto.getRegisteredShiftTimeSlot().getId())
