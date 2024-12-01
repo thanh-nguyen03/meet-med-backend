@@ -23,7 +23,7 @@ public interface AppointmentRepository extends BaseRepository<Appointment, Strin
 		"AND a.registeredShiftTimeSlot.startTime <= :endDateTime " +
 		"AND a.is24HourNotificationSent = false"
 	)
-	List<Appointment> findAllByDateTimeBetweenAAndIs1HourNotificationSentFalse(Instant startDateTime, Instant endDateTime);
+	List<Appointment> findAllByDateTimeBetweenAndIs1HourNotificationSentFalse(Instant startDateTime, Instant endDateTime);
 
 	@Query("SELECT a FROM Appointment a " +
 		"WHERE a.registeredShiftTimeSlot.startTime >= :startDateTime " +

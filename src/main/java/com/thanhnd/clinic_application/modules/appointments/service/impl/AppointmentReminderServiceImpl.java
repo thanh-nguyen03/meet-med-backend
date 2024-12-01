@@ -1,6 +1,8 @@
 package com.thanhnd.clinic_application.modules.appointments.service.impl;
 
 import com.google.gson.JsonObject;
+import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.NotificationMessage;
 import com.thanhnd.clinic_application.constants.NotificationType;
 import com.thanhnd.clinic_application.entity.Appointment;
@@ -18,6 +20,7 @@ import com.thanhnd.clinic_application.modules.notifications.dto.NotificationDto;
 import com.thanhnd.clinic_application.modules.notifications.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class AppointmentReminderServiceImpl implements AppointmentReminderService {
 	private final AppointmentRepository appointmentRepository;
 
@@ -39,7 +43,6 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 	private final NotificationMapper notificationMapper;
 
 	@Override
-	@Scheduled(cron = "0 */30 * * * *") // Run every 30 minutes
 	public void send24HourReminder() {
 		Instant now = Instant.now();
 		Instant next24Hour = Instant.now().plusSeconds(24 * 60 * 60);
@@ -75,7 +78,7 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 		Instant now = Instant.now();
 		Instant next1Hour = Instant.now().plusSeconds(60 * 60);
 
-		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetweenAAndIs1HourNotificationSentFalse(now, next1Hour);
+		List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetweenAndIs1HourNotificationSentFalse(now, next1Hour);
 
 		appointments.forEach(appointment -> {
 			String message = NotificationMessage.APPOINTMENT_REMINDER_1_HOUR_MESSAGE.getMessage(
@@ -89,7 +92,26 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 			sendNotification(appointment, message);
 			appointment.setIs1HourNotificationSent(true);
 			appointmentRepository.save(appointment);
+			log.info("Sent 1 hour reminder for appointment with id: {}", appointment.getId());
 		});
+	}
+
+	@Override
+	public void sendMockReminder(String appointmentId) {
+		Appointment appointment = appointmentRepository.findById(appointmentId)
+			.orElseThrow(() -> HttpException.notFound(Message.APPOINTMENT_NOT_FOUND.getMessage()));
+
+		String message = "Mock Notification - " + NotificationMessage.APPOINTMENT_REMINDER_1_HOUR_MESSAGE.getMessage(
+			appointment
+				.getRegisteredShiftTimeSlot()
+				.getRegisteredShift()
+				.getDoctor()
+				.getUser()
+				.getFullName()
+		);
+
+		sendNotification(appointment, message);
+		log.info("Sent mock reminder for appointment with id: {}", appointment.getId());
 	}
 
 	private void sendNotification(Appointment appointment, String message) {

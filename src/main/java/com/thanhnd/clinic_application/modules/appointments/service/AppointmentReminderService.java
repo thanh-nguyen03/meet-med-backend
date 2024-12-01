@@ -4,4 +4,6 @@ public interface AppointmentReminderService {
 	void send24HourReminder();
 
 	void send1HourReminder();
+
+	void sendMockReminder(String appointmentId);
 }
