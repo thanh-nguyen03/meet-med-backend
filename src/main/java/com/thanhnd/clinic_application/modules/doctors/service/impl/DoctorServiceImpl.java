@@ -149,12 +149,17 @@ public class DoctorServiceImpl implements DoctorService {
 			return doctorShiftPriceByDegreeRepository.findByDegree(DoctorShiftPriceByDegree.BASE_DEGREE).getBasePrice();
 		}
 
-		Double priceByDegree = doctorShiftPriceByDegreeRepository.findByDegree(doctor.getDegree()).getBasePrice();
+		DoctorShiftPriceByDegree priceByDegree = doctorShiftPriceByDegreeRepository.findByDegree(doctor.getDegree());
+
+		if (priceByDegree == null) {
+			return doctorShiftPriceByDegreeRepository.findByDegree(DoctorShiftPriceByDegree.BASE_DEGREE).getBasePrice();
+		}
+
 		List<DoctorShiftPriceByExperience> priceByExperiences = doctorShiftPriceByExperienceRepository.findAllSorted();
 
 		for (DoctorShiftPriceByExperience priceByExperience : priceByExperiences) {
 			if (doctor.getYearsOfExperience() >= priceByExperience.getExperience()) {
-				return priceByDegree * priceByExperience.getMultiplier();
+				return priceByDegree.getBasePrice() * priceByExperience.getMultiplier();
 			}
 		}
 
