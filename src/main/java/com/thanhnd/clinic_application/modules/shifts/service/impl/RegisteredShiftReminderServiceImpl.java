@@ -1,6 +1,8 @@
 package com.thanhnd.clinic_application.modules.shifts.service.impl;
 
 import com.google.gson.JsonObject;
+import com.thanhnd.clinic_application.common.exception.HttpException;
+import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.constants.NotificationMessage;
 import com.thanhnd.clinic_application.constants.NotificationType;
 import com.thanhnd.clinic_application.entity.Notification;
@@ -84,5 +86,46 @@ public class RegisteredShiftReminderServiceImpl implements RegisteredShiftRemind
 				);
 			}
 		});
+	}
+
+	@Override
+	public void sendMockReminder(String registeredShiftId) {
+		RegisteredShift registeredShift = registeredShiftRepository.findById(registeredShiftId)
+			.orElseThrow(() -> HttpException.notFound(Message.REGISTERED_SHIFT_NOT_FOUND.getMessage()));
+
+		String message = "Mock Notification - " + NotificationMessage.WORKING_SHIFT_REMINDER_TOMORROW_MESSAGE.getMessage();
+		NotificationDto notificationDto = new NotificationDto();
+		notificationDto.setTitle(NotificationMessage.WORKING_SHIFT_REMINDER_TITLE.getMessage());
+		notificationDto.setContent(message);
+		notificationDto.setReceiverId(registeredShift.getDoctor().getUser().getId());
+		notificationDto.setType(NotificationType.WORKING_SHIFT_REMINDER);
+		JsonObject objectData = new JsonObject();
+		objectData.addProperty("registeredShiftId", registeredShift.getId());
+		notificationDto.setObjectData(objectData.toString());
+
+		List<String> receiverIds = List.of(registeredShift.getDoctor().getUser().getId());
+		List<Notification> notifications = notificationService.sendNotifications(receiverIds, notificationDto);
+
+		for (Notification notification : notifications) {
+			List<String> deviceTokens = fcmDeviceTokenService.findAllByUserId(notification.getReceiverId())
+				.stream()
+				.map(FcmDeviceTokenDto::getToken)
+				.toList();
+
+			if (deviceTokens.isEmpty()) {
+				continue;
+			}
+
+			AmqpNotificationMessageDto notificationMessageDto = new AmqpNotificationMessageDto();
+			notificationMessageDto.setNotification(notificationMapper.toDto(notification));
+			notificationMessageDto.setDeviceTokens(deviceTokens);
+
+			amqpService.produceMessage(
+				AmqpMessage.builder()
+					.timestamp(notification.getCreatedAt())
+					.content(notificationMessageDto)
+					.build()
+			);
+		}
 	}
 }

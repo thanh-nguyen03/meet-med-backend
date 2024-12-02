@@ -108,7 +108,11 @@ public class ShiftServiceImpl implements ShiftService {
 		Instant start = DateHelper.getStartOfDay(startOfWeek);
 		Instant end = DateHelper.getEndOfDay(endOfWeek);
 
-		return getListByDoctorIdAndTime(doctor, start, end, false);
+		List<CanRegisterShiftDto> canRegisterShiftDtos = getListByDoctorIdAndTime(doctor, start, end, false);
+
+		return canRegisterShiftDtos.stream()
+			.filter(canRegisterShiftDto -> canRegisterShiftDto.getRegisteredShift() != null)
+			.collect(Collectors.toList());
 	}
 
 	private void createShiftTableForDay(LocalDateTime date) {

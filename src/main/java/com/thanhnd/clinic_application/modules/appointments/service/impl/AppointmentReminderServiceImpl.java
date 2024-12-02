@@ -89,6 +89,9 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 					.getUser()
 					.getFullName()
 			);
+			if (appointment.getIs1HourNotificationSent()) {
+				return;
+			}
 			sendNotification(appointment, message);
 			appointment.setIs1HourNotificationSent(true);
 			appointmentRepository.save(appointment);

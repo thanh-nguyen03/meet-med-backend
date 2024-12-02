@@ -7,6 +7,7 @@ import com.thanhnd.clinic_application.constants.NotificationStatus;
 import com.thanhnd.clinic_application.constants.PaginationConstants;
 import com.thanhnd.clinic_application.modules.appointments.service.AppointmentReminderService;
 import com.thanhnd.clinic_application.modules.notifications.service.NotificationService;
+import com.thanhnd.clinic_application.modules.shifts.service.RegisteredShiftReminderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController extends BaseController {
 	private final NotificationService notificationService;
 	private final AppointmentReminderService appointmentReminderService;
+	private final RegisteredShiftReminderService registeredShiftReminderService;
 
 	@GetMapping
 	public ResponseEntity<ResponseDto> getAllNotifications(
@@ -40,6 +42,12 @@ public class NotificationController extends BaseController {
 	@PostMapping("/appointment/{appointmentId}")
 	public ResponseEntity<ResponseDto> createAppointmentNotification(@PathVariable String appointmentId) {
 		appointmentReminderService.sendMockReminder(appointmentId);
+		return createSuccessResponse(ResponseDto.success());
+	}
+
+	@PostMapping("/registerd-shift/{registeredShiftId}")
+	public ResponseEntity<ResponseDto> createRegisteredShiftNotification(@PathVariable String registeredShiftId) {
+		registeredShiftReminderService.sendMockReminder(registeredShiftId);
 		return createSuccessResponse(ResponseDto.success());
 	}
 
