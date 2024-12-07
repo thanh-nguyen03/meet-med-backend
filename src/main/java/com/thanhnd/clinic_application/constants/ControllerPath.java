@@ -26,4 +26,6 @@ public class ControllerPath {
 	public static final String NOTIFICATION_CONTROLLER = "/api/notification";
 
 	public static final String FCM_DEVICE_TOKEN_CONTROLLER = "/api/fcm-device-token";
+
+	public static final String CHAT_BOX_CONTROLLER = "/api/chat-box";
 }

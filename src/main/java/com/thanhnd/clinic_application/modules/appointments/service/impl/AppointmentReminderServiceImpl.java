@@ -3,6 +3,7 @@ package com.thanhnd.clinic_application.modules.appointments.service.impl;
 import com.google.gson.JsonObject;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
+import com.thanhnd.clinic_application.constants.MessageQueueConstants;
 import com.thanhnd.clinic_application.constants.NotificationMessage;
 import com.thanhnd.clinic_application.constants.NotificationType;
 import com.thanhnd.clinic_application.entity.Appointment;
@@ -145,6 +146,8 @@ public class AppointmentReminderServiceImpl implements AppointmentReminderServic
 			notificationMessageDto.setDeviceTokens(deviceTokens);
 
 			amqpService.produceMessage(
+				MessageQueueConstants.QueueName.NOTIFICATION_QUEUE,
+				MessageQueueConstants.RoutingKey.NOTIFICATION_ROUTING_KEY,
 				AmqpMessage.builder()
 					.timestamp(notification.getCreatedAt())
 					.content(notificationMessageDto)

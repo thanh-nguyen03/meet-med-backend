@@ -3,6 +3,7 @@ package com.thanhnd.clinic_application.modules.shifts.service.impl;
 import com.google.gson.JsonObject;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.constants.Message;
+import com.thanhnd.clinic_application.constants.MessageQueueConstants;
 import com.thanhnd.clinic_application.constants.NotificationMessage;
 import com.thanhnd.clinic_application.constants.NotificationType;
 import com.thanhnd.clinic_application.entity.Notification;
@@ -79,6 +80,8 @@ public class RegisteredShiftReminderServiceImpl implements RegisteredShiftRemind
 				notificationMessageDto.setDeviceTokens(deviceTokens);
 
 				amqpService.produceMessage(
+					MessageQueueConstants.ExchangeName.NOTIFICATION_EXCHANGE,
+					MessageQueueConstants.RoutingKey.NOTIFICATION_ROUTING_KEY,
 					AmqpMessage.builder()
 						.timestamp(notification.getCreatedAt())
 						.content(notificationMessageDto)
@@ -121,6 +124,8 @@ public class RegisteredShiftReminderServiceImpl implements RegisteredShiftRemind
 			notificationMessageDto.setDeviceTokens(deviceTokens);
 
 			amqpService.produceMessage(
+				MessageQueueConstants.ExchangeName.NOTIFICATION_EXCHANGE,
+				MessageQueueConstants.RoutingKey.NOTIFICATION_ROUTING_KEY,
 				AmqpMessage.builder()
 					.timestamp(notification.getCreatedAt())
 					.content(notificationMessageDto)
