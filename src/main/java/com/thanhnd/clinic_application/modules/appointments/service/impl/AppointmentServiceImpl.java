@@ -4,10 +4,7 @@ import com.google.gson.JsonObject;
 import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
-import com.thanhnd.clinic_application.constants.AppointmentStatus;
-import com.thanhnd.clinic_application.constants.Message;
-import com.thanhnd.clinic_application.constants.NotificationMessage;
-import com.thanhnd.clinic_application.constants.NotificationType;
+import com.thanhnd.clinic_application.constants.*;
 import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.helper.NotificationHelper;
 import com.thanhnd.clinic_application.mapper.AppointmentMapper;
@@ -128,7 +125,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	@Override
 	public AppointmentDto findByIdForDoctor(String appointmentId) {
 		String userId = jwtAuthenticationManager.getUserId();
-		Doctor doctor = doctorRepository.findByUserId(userId)
+		doctorRepository.findByUserId(userId)
 			.orElseThrow(() -> HttpException.forbidden(Message.PERMISSION_DENIED.getMessage()));
 
 		Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -201,6 +198,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 					.toList()
 			);
 			amqpService.produceMessage(
+				MessageQueueConstants.ExchangeName.NOTIFICATION_EXCHANGE,
+				MessageQueueConstants.RoutingKey.NOTIFICATION_ROUTING_KEY,
 				AmqpMessage.builder()
 					.timestamp(notification.getCreatedAt())
 					.content(notificationMessageDto)

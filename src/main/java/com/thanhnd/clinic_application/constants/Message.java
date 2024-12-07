@@ -58,6 +58,9 @@ public enum Message {
 
 	// Notification
 	NOTIFICATION_NOT_FOUND("Notification not found"),
+
+	// Chat box
+	CHAT_BOX_NOT_FOUND("Chat box not found"),
 	;
 
 	private final String message;
