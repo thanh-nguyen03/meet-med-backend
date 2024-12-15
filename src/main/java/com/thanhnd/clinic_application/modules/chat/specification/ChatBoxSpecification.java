@@ -8,20 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatBoxSpecification {
-	public static Specification<ChatBox> filterNotUserAndDoctorNameLike(String userId, String doctorName) {
+	public static Specification<ChatBox> filterDoctorName(String doctorName) {
 		return (root, query, criteriaBuilder) -> {
 			List<Predicate> predicates = new ArrayList<>();
 
-			// Not any member of the chat box is the user
-			Predicate notUserPredicate = criteriaBuilder.notEqual(root.get("members").get("user").get("id"), userId);
-
 			// The chat box has a member who is the doctor
 			Predicate doctorNamePredicate = criteriaBuilder.like(
-				criteriaBuilder.lower(root.get("members").get("user").get("fullName")),
+				criteriaBuilder.lower(root.get("doctor").get("user").get("fullName")),
 				"%" + doctorName.toLowerCase() + "%"
 			);
 
-			predicates.add(notUserPredicate);
 			predicates.add(doctorNamePredicate);
 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
