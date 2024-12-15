@@ -5,7 +5,6 @@ import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
 import com.thanhnd.clinic_application.entity.ChatBox;
-import com.thanhnd.clinic_application.entity.ChatBoxMember;
 import com.thanhnd.clinic_application.mapper.ChatBoxMapper;
 import com.thanhnd.clinic_application.modules.chat.dto.ChatBoxDto;
 import com.thanhnd.clinic_application.modules.chat.repository.ChatBoxRepository;
@@ -17,8 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +29,10 @@ public class ChatBoxServiceImpl implements ChatBoxService {
 
 	@Override
 	public PageableResultDto<ChatBoxDto> findAllByUser(Pageable pageable, String userId, String doctorName) {
-		Specification<ChatBox> specification = ChatBoxSpecification.filterNotUserAndDoctorNameLike(userId, doctorName);
+		Specification<ChatBox> specification = ChatBoxSpecification.filterDoctorName(doctorName);
 		Page<ChatBox> chatBoxes = chatBoxRepository.findAll(specification, pageable);
 
-		return PageableResultDto.parse(chatBoxes.map(chatBoxMapper::toDtoExcludeMembers));
+		return PageableResultDto.parse(chatBoxes.map(chatBoxMapper::toDto));
 	}
 
 	@Override
@@ -44,9 +41,10 @@ public class ChatBoxServiceImpl implements ChatBoxService {
 		ChatBox chatBox = chatBoxRepository.findById(id)
 			.orElseThrow(() -> HttpException.notFound(Message.CHAT_BOX_NOT_FOUND.getMessage()));
 
-		List<ChatBoxMember> members = chatBox.getMembers();
+		String patientUserId = chatBox.getPatient().getUser().getId();
+		String doctorUserId = chatBox.getDoctor().getUser().getId();
 
-		if (members.stream().noneMatch(member -> member.getUser().getId().equals(userId))) {
+		if (!userId.equals(patientUserId) && !userId.equals(doctorUserId)) {
 			throw HttpException.forbidden(Message.PERMISSION_DENIED.getMessage());
 		}
 

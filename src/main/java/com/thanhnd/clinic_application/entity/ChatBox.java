@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @Entity
@@ -15,9 +13,11 @@ public class ChatBox extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 
-	@Column(name = "socket_room_name", nullable = false, unique = true)
-	private String socketRoomName;
+	@ManyToOne
+	@JoinColumn(name = "patient_id", referencedColumnName = "id")
+	private Patient patient;
 
-	@OneToMany(mappedBy = "chatBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<ChatBoxMember> members;
+	@ManyToOne
+	@JoinColumn(name = "doctor_id", referencedColumnName = "id")
+	private Doctor doctor;
 }
