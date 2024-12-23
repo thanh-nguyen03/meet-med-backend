@@ -26,9 +26,19 @@ public class ChatMessage extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private ChatMessageStatus status = ChatMessageStatus.SENT;
 
-	@ManyToOne
-	@JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
-	private User sender;
+	@Column(name = "patient_id", insertable = false, updatable = false)
+	private String patientId;
+
+	@Column(name = "doctor_id", insertable = false, updatable = false)
+	private String doctorId;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "patient_id", referencedColumnName = "id", nullable = false)
+	private Patient patient;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "doctor_id", referencedColumnName = "id", nullable = false)
+	private Doctor doctor;
 
 	@ManyToOne
 	@JoinColumn(name = "chat_box_id", referencedColumnName = "id", nullable = false)
