@@ -7,7 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "tbl_chat_box")
+@Table(name = "tbl_chat_box", uniqueConstraints = {
+	@UniqueConstraint(columnNames = {"patient_id", "doctor_id"})
+})
 public class ChatBox extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
