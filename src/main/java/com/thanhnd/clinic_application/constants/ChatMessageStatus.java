@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public enum ChatMessageStatus {
 	SENT("SENT"),
-	DELIVERED("DELIVERED"),
 	READ("READ");
 
 	private final String value;
