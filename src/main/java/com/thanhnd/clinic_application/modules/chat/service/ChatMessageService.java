@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ChatMessageService {
 	PageableResultDto<ChatMessageDto> findAllByChatBoxId(String chatBoxId, Pageable pageable);
+
+	void readAllMessages(String chatBoxId);
 }

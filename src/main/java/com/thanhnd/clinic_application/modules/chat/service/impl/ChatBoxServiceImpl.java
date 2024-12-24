@@ -4,14 +4,15 @@ import com.thanhnd.clinic_application.common.dto.PageableResultDto;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
 import com.thanhnd.clinic_application.constants.Message;
-import com.thanhnd.clinic_application.entity.Appointment;
-import com.thanhnd.clinic_application.entity.ChatBox;
-import com.thanhnd.clinic_application.entity.Doctor;
-import com.thanhnd.clinic_application.entity.Patient;
+import com.thanhnd.clinic_application.entity.*;
 import com.thanhnd.clinic_application.mapper.ChatBoxMapper;
+import com.thanhnd.clinic_application.mapper.ChatMessageMapper;
 import com.thanhnd.clinic_application.modules.appointments.repository.AppointmentRepository;
 import com.thanhnd.clinic_application.modules.chat.dto.ChatBoxDto;
+import com.thanhnd.clinic_application.modules.chat.dto.ChatBoxExtendDto;
+import com.thanhnd.clinic_application.modules.chat.dto.ChatMessageDto;
 import com.thanhnd.clinic_application.modules.chat.repository.ChatBoxRepository;
+import com.thanhnd.clinic_application.modules.chat.repository.ChatMessageRepository;
 import com.thanhnd.clinic_application.modules.chat.service.ChatBoxService;
 import com.thanhnd.clinic_application.modules.chat.specification.ChatBoxSpecification;
 import com.thanhnd.clinic_application.modules.doctors.repository.DoctorRepository;
@@ -30,11 +31,13 @@ import java.util.List;
 @Transactional
 public class ChatBoxServiceImpl implements ChatBoxService {
 	private final ChatBoxRepository chatBoxRepository;
+	private final ChatMessageRepository chatMessageRepository;
 	private final AppointmentRepository appointmentRepository;
 	private final DoctorRepository doctorRepository;
 	private final PatientRepository patientRepository;
 
 	private final ChatBoxMapper chatBoxMapper;
+	private final ChatMessageMapper chatMessageMapper;
 
 	private final JwtAuthenticationManager jwtAuthenticationManager;
 
@@ -58,7 +61,7 @@ public class ChatBoxServiceImpl implements ChatBoxService {
 	}
 
 	@Override
-	public PageableResultDto<ChatBoxDto> findAllByUser(Pageable pageable, String userId, String name) {
+	public PageableResultDto<ChatBoxExtendDto> findAllByUser(Pageable pageable, String userId, String name) {
 		Specification<ChatBox> specification = ChatBoxSpecification.filterName(name);
 		Doctor doctor = doctorRepository.findByUserId(userId)
 			.orElse(null);
@@ -74,7 +77,16 @@ public class ChatBoxServiceImpl implements ChatBoxService {
 
 		Page<ChatBox> chatBoxes = chatBoxRepository.findAll(finalSpecification, pageable);
 
-		return PageableResultDto.parse(chatBoxes.map(chatBoxMapper::toDto));
+		Page<ChatBoxDto> chatBoxDtos = chatBoxes.map(chatBoxMapper::toDto);
+
+		Page<ChatBoxExtendDto> chatBoxExtendDtos = chatBoxDtos.map(chatBoxDto -> {
+			ChatMessage chatMessage = chatMessageRepository.findFirstByChatBoxIdOrderByCreatedAtDesc(chatBoxDto.getId())
+				.orElse(null);
+			ChatMessageDto chatMessageDto = chatMessage != null ? chatMessageMapper.toDtoExcludeChatBox(chatMessage) : null;
+			return new ChatBoxExtendDto(chatBoxDto, chatMessageDto);
+		});
+
+		return PageableResultDto.parse(chatBoxExtendDtos);
 	}
 
 	@Override

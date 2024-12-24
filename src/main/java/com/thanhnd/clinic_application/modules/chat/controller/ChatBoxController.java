@@ -48,4 +48,10 @@ public class ChatBoxController extends BaseController {
 			chatMessageService.findAllByChatBoxId(chatBoxId, parsePageRequest(page, size, orderBy, order))
 		));
 	}
+
+	@PutMapping("/{chatBoxId}/messages/read")
+	public ResponseEntity<ResponseDto> readAllMessages(@PathVariable String chatBoxId) {
+		chatMessageService.readAllMessages(chatBoxId);
+		return createSuccessResponse(ResponseDto.success());
+	}
 }
