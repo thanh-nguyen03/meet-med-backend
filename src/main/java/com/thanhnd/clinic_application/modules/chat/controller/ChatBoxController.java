@@ -40,10 +40,10 @@ public class ChatBoxController extends BaseController {
 	public ResponseEntity<ResponseDto> getMessagesOfBoxChat(
 		@PathVariable String chatBoxId,
 		@RequestParam(value = PaginationConstants.PAGE, defaultValue = PaginationConstants.DEFAULT_PAGE_NUMBER) int page,
-		@RequestParam(value = PaginationConstants.SIZE, defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE) int size
+		@RequestParam(value = PaginationConstants.SIZE, defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE) int size,
+		@RequestParam(value = PaginationConstants.ORDER_BY, defaultValue = "createdAt", required = false) String orderBy,
+		@RequestParam(value = PaginationConstants.ORDER, defaultValue = "asc", required = false) String order
 	) {
-		String orderBy = "createdAt";
-		String order = "asc";
 		return createSuccessResponse(ResponseDto.success(
 			chatMessageService.findAllByChatBoxId(chatBoxId, parsePageRequest(page, size, orderBy, order))
 		));
