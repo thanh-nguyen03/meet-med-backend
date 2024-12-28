@@ -9,7 +9,7 @@ public class DateHelper {
 	public static ZoneId ZONE_ID = ZoneId.of("Asia/Ho_Chi_Minh");
 
 	public static Instant getFirstDayOfMonth(int month, int year) {
-		return Instant.parse(year + "-" + month + "-01T00:00:00Z");
+		return Instant.parse(year + "-" + String.format("%02d", month) + "-01T00:00:00Z");
 	}
 
 	public static Instant getLastDayOfMonth(int month, int year) {
