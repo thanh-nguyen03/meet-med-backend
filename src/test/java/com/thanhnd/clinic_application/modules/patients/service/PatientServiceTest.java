@@ -1,475 +1,412 @@
 package com.thanhnd.clinic_application.modules.patients.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.thanhnd.clinic_application.common.exception.HttpException;
 import com.thanhnd.clinic_application.common.service.JwtAuthenticationManager;
-import com.thanhnd.clinic_application.constants.Message;
-import com.thanhnd.clinic_application.constants.UserGender;
 import com.thanhnd.clinic_application.entity.Patient;
 import com.thanhnd.clinic_application.entity.User;
+import com.thanhnd.clinic_application.mapper.PatientMapper;
 import com.thanhnd.clinic_application.modules.patients.dto.PatientDto;
 import com.thanhnd.clinic_application.modules.patients.repository.PatientRepository;
+import com.thanhnd.clinic_application.modules.patients.service.impl.PatientServiceImpl;
 import com.thanhnd.clinic_application.modules.users.dto.UserDto;
 import com.thanhnd.clinic_application.modules.users.repository.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Patient Service Tests")
-@Tag("service")
-public class PatientServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PatientServiceTest {
 
-    @Autowired
-    private PatientService patientService;
-
-    @Autowired
+    @Mock
     private PatientRepository patientRepository;
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
 
-    @MockBean
+    @Mock
+    private PatientMapper patientMapper;
+
+    @Mock
     private JwtAuthenticationManager jwtAuthenticationManager;
-    
-    @PersistenceContext
-    private EntityManager entityManager;
-    
-    private ObjectMapper objectMapper;
 
-    private String TEST_USER_ID = "test-service-user";
-    private UserDto userDto;
-    private PatientDto patientDto;
+    @InjectMocks
+    private PatientServiceImpl patientService;
 
-    private String currentTestCaseId;
-    private static final Pattern TEST_CASE_ID_PATTERN = Pattern.compile("TC-PS-(\\d{3})");
-    
-    // Variables to track test results
-    private boolean testPassed = false;
-    private Map<String, Object> testInputs = new HashMap<>();
-    private Map<String, Object> testOutputs = new HashMap<>();
-    private Exception testException = null;
+    private User mockUser;
+    private Patient mockPatient;
+    private PatientDto mockPatientDto;
+    private UserDto mockUserDto;
 
     @BeforeEach
-    void setUp(TestInfo testInfo) {
-        // Reset test result tracking variables
-        testPassed = false;
-        testInputs.clear();
-        testOutputs.clear();
-        testException = null;
-        
-        // Initialize object mapper for pretty printing JSON
-        objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.findAndRegisterModules(); // For LocalDate support
-        
-        // Extract test case ID from the DisplayName
-        String displayName = testInfo.getDisplayName();
-        Matcher matcher = TEST_CASE_ID_PATTERN.matcher(displayName);
-        if (matcher.find()) {
-            currentTestCaseId = "TC-PS-" + matcher.group(1);
-        }
+    void setUp() {
+        // Setup mock User
+        mockUser = new User();
+        mockUser.setId("uuid-patient-1");
+        mockUser.setEmail("patient1@clinic.com");
+        mockUser.setFullName("Alice Smith");
+        mockUser.setAge(34);
+        mockUser.setPhone("555-1111");
 
-        // Create a test user in the database with the EXACT SAME ID that JWT will return
-        User user = new User();
-        user.setEmail("service-test@example.com");
-        user.setFullName("Service Test User");
-        user.setAge(25);
-        user.setPhone("5551234567");
-        user.setGender(UserGender.Male);
-        User savedUser = userRepository.save(user);
-        TEST_USER_ID = savedUser.getId();
-        
-        // Log saved user for debugging
-        System.out.println("Saved user with ID: " + savedUser.getId());
-        when(jwtAuthenticationManager.getUserId()).thenReturn(TEST_USER_ID);
-        
-        // Prepare DTOs for testing
-        userDto = new UserDto();
-        userDto.setId(TEST_USER_ID);  // This must match the saved user ID
-        userDto.setEmail("service-test@example.com");
-        userDto.setFullName("Service Test User");
-        userDto.setAge(25);
-        userDto.setPhone("5551234567");
-        userDto.setGender(UserGender.Male);
+        // Setup mock Patient
+        mockPatient = new Patient();
+        mockPatient.setId("uuid-patient-1-profile");
+        mockPatient.setDateOfBirth(LocalDate.of(1990, 5, 15));
+        mockPatient.setAddressLine("123 Health St");
+        mockPatient.setDistrict("Wellness");
+        mockPatient.setCity("MedCity");
+        mockPatient.setInsuranceCode("INS12345");
+        mockPatient.setUser(mockUser);
 
-        patientDto = new PatientDto();
-        patientDto.setDateOfBirth(LocalDate.of(1998, 4, 15));
-        patientDto.setAddressLine("456 Service Test Street");
-        patientDto.setDistrict("Service District");
-        patientDto.setCity("Service City");
-        patientDto.setInsuranceCode("SRV-123456");
-        patientDto.setUser(userDto);
+        // Setup mock UserDto
+        mockUserDto = new UserDto();
+        mockUserDto.setId("uuid-patient-1");
+        mockUserDto.setEmail("patient1@clinic.com");
+        mockUserDto.setFullName("Alice Smith");
+        mockUserDto.setAge(34);
+        mockUserDto.setPhone("555-1111");
 
-        // Track input data
-        testInputs.put("userId", TEST_USER_ID);
-        testInputs.put("patientDto", patientDto);
+        // Setup mock PatientDto
+        mockPatientDto = new PatientDto();
+        mockPatientDto.setId("uuid-patient-1-profile");
+        mockPatientDto.setDateOfBirth(LocalDate.of(1990, 5, 15));
+        mockPatientDto.setAddressLine("123 Health St");
+        mockPatientDto.setDistrict("Wellness");
+        mockPatientDto.setCity("MedCity");
+        mockPatientDto.setInsuranceCode("INS12345");
+        mockPatientDto.setUser(mockUserDto);
 
-        System.out.println("\n======= TEST EXECUTION STARTED: " + (currentTestCaseId != null ? currentTestCaseId : "Unknown Test") + " =======");
-        
-        // Verify user was actually saved
-        Optional<User> foundUser = userRepository.findById(TEST_USER_ID);
-        System.out.println("User found in database: " + foundUser.isPresent());
-        
-        // Print test input
-        try {
-            System.out.println("\n======= TEST INPUT =======");
-            System.out.println("User ID from JWT: " + TEST_USER_ID);
-            System.out.println("Patient DTO: " + objectMapper.writeValueAsString(patientDto));
-            System.out.println("==========================\n");
-        } catch (Exception e) {
-            System.out.println("Error printing test input: " + e.getMessage());
-        }
-    }
-
-    @AfterEach
-    void tearDown() {
-        // Print test results
-        try {
-            System.out.println("\n======= TEST RESULT =======");
-            System.out.println("Test Case: " + currentTestCaseId);
-            System.out.println("Status: " + (testPassed ? "✅ PASSED" : "❌ FAILED"));
-            
-            System.out.println("\nTest Input:");
-            for (Map.Entry<String, Object> entry : testInputs.entrySet()) {
-                System.out.println("- " + entry.getKey() + ": " + 
-                    (entry.getValue() instanceof String 
-                        ? entry.getValue() 
-                        : objectMapper.writeValueAsString(entry.getValue())));
-            }
-            
-            System.out.println("\nTest Output:");
-            if (testOutputs.isEmpty() && testException != null) {
-                System.out.println("- Exception: " + testException.getMessage());
-                testException.printStackTrace(System.out);
-            } else {
-                for (Map.Entry<String, Object> entry : testOutputs.entrySet()) {
-                    System.out.println("- " + entry.getKey() + ": " + 
-                        (entry.getValue() instanceof String 
-                            ? entry.getValue() 
-                            : objectMapper.writeValueAsString(entry.getValue())));
-                }
-            }
-            System.out.println("==========================\n");
-        } catch (Exception e) {
-            System.out.println("Error printing test result: " + e.getMessage());
-        }
-        
-        System.out.println("======= TEST COMPLETED: " + currentTestCaseId + " =======\n");
+        // Setup mapper mock behavior
+        when(patientMapper.toDto(any(Patient.class))).thenReturn(mockPatientDto);
+        when(patientMapper.toEntity(any(PatientDto.class))).thenReturn(mockPatient);
     }
 
     /**
-     * Test Case: TC-PS-001
-     * Goal: Verify successful creation of a patient profile
+     * Testcase 1 `findAll_ReturnsListOfPatientDtos`
+     * - Goal: Verify that all patients can be retrieved successfully.
+     * - Test Case Code/Steps:
+     *   1. Mock patientRepository to return a list with one patient.
+     *   2. Call patientService.findAll().
+     *   3. Assert the response contains the expected patient data.
+     * - Input: N/A (method takes no parameters).
+     * - Expected Output: List containing one PatientDto matching the mock data.
+     * - Note: Tests the basic retrieval functionality.
      */
     @Test
-    @Order(1)
-    @DisplayName("📋 TC-PS-001: Patient Profile Creation")
-    void testCreatePatient() {
-        try {
-            // Step 1: First create JWT authentication with user ID
-            System.out.println("Setting up JWT authentication with user ID: " + TEST_USER_ID);
-            when(jwtAuthenticationManager.getUserId()).thenReturn(TEST_USER_ID);
-            
-            // Step 2: Create a patient profile (this will use the authenticated user ID)
-            System.out.println("Creating patient profile...");
-            PatientDto createdPatient = patientService.create(patientDto);
-            System.out.println("Patient created with ID: " + createdPatient.getId());
-            
-            // Track output
-            testOutputs.put("createdPatient", createdPatient);
-            
-            // Flush and clear the persistence context
-            entityManager.flush();
-            entityManager.clear();
+    void findAll_ReturnsListOfPatientDtos() {
+        // Arrange
+        when(patientRepository.findAll()).thenReturn(List.of(mockPatient));
 
-            // Step 3: Verify that patient was created with correct information
-            assertNotNull(createdPatient.getId(), "Patient ID should be generated");
-            assertEquals("456 Service Test Street", createdPatient.getAddressLine());
-            assertEquals("Service District", createdPatient.getDistrict());
-            assertEquals("Service City", createdPatient.getCity());
-            assertEquals("SRV-123456", createdPatient.getInsuranceCode());
-            assertEquals(TEST_USER_ID, createdPatient.getUser().getId());
+        // Act
+        List<PatientDto> result = patientService.findAll();
 
-            // Step 4: Verify patient exists in database
-            Optional<Patient> dbPatient = patientRepository.findByUserId(TEST_USER_ID);
-            assertTrue(dbPatient.isPresent(), "Patient should exist in database");
-            assertEquals("456 Service Test Street", dbPatient.get().getAddressLine());
-            
-            // Test passed
-            testPassed = true;
-            
-        } catch (AssertionError e) {
-            // For assertion errors, just rethrow
-            throw e;
-        } catch (Exception e) {
-            // For any other exceptions, log and track
-            System.err.println("Test failed with exception: " + e.getMessage());
-            testException = e;
-            throw e;
-        }
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockPatientDto, result.get(0));
     }
 
     /**
-     * Test Case: TC-PS-002
-     * Goal: Verify that a patient can successfully retrieve their profile
-     * Input:
-     * - Valid JWT token for authenticated user
-     * - User has an existing patient profile
-     * Expected Output:
-     * - Status 200 OK (implied by successful return)
-     * - Patient DTO with correct user information
-     * Note: Verifies the happy path for profile retrieval
+     * Testcase 2 `findByUserId_ExistingUser_ReturnsPatientDto`
+     * - Goal: Verify a patient profile can be successfully retrieved by user ID when it exists.
+     * - Test Case Code/Steps:
+     *   1. Mock patientRepository to return a patient when findByUserId is called with "uuid-patient-1".
+     *   2. Call patientService.findByUserId("uuid-patient-1").
+     *   3. Assert the response contains the expected patient profile.
+     * - Input: userId = "uuid-patient-1"
+     * - Expected Output: PatientDto object matching the mock patient data.
+     * - Note: Tests happy path for profile retrieval by user ID.
      */
     @Test
-    @Order(2)
-    @DisplayName("📋 TC-PS-002: Patient Profile Retrieval - Success")
-    void testPatientProfileRetrieval() {
-        try {
-            // Step 1: First create JWT authentication with user ID
-            System.out.println("Setting up JWT authentication with user ID: " + TEST_USER_ID);
-            when(jwtAuthenticationManager.getUserId()).thenReturn(TEST_USER_ID);
-            
-            // Step 2: Create a patient profile (this will use the authenticated user ID)
-            System.out.println("Creating patient profile...");
-            PatientDto createdPatient = patientService.create(patientDto);
-            System.out.println("Patient created with ID: " + createdPatient.getId());
-            testOutputs.put("createdPatient", createdPatient);
-            
-            // Flush and clear the persistence context 
-            entityManager.flush();
-            entityManager.clear();
-            
-            // Step 3: Verify patient was created successfully
-            assertNotNull(createdPatient.getId(), "Patient should have been created with an ID");
-            
-            // Step 4: Retrieve the patient profile
-            System.out.println("Retrieving patient profile for user ID: " + TEST_USER_ID);
-            PatientDto foundPatient = patientService.findByUserId(TEST_USER_ID);
-            System.out.println("Patient profile retrieved successfully");
-            testOutputs.put("retrievedPatient", foundPatient);
+    void findByUserId_ExistingUser_ReturnsPatientDto() {
+        // Arrange
+        when(patientRepository.findByUserId("uuid-patient-1")).thenReturn(Optional.of(mockPatient));
 
-            // Step 5: Verify retrieved patient information is correct
-            assertNotNull(foundPatient, "Patient profile should be found");
-            assertEquals(createdPatient.getId(), foundPatient.getId(), "Should return the same patient");
-            assertEquals("456 Service Test Street", foundPatient.getAddressLine());
-            assertEquals("Service District", foundPatient.getDistrict());
-            assertEquals("Service City", foundPatient.getCity());
-            assertEquals("SRV-123456", foundPatient.getInsuranceCode());
-            
-            // Verify user information is correct
-            assertNotNull(foundPatient.getUser(), "User information should be included");
-            assertEquals(TEST_USER_ID, foundPatient.getUser().getId());
-            assertEquals("service-test@example.com", foundPatient.getUser().getEmail());
-            assertEquals("Service Test User", foundPatient.getUser().getFullName());
-            assertEquals(25, foundPatient.getUser().getAge());
-            assertEquals("5551234567", foundPatient.getUser().getPhone());
-            assertEquals(UserGender.Male, foundPatient.getUser().getGender());
-            
-            // Verify against database record
-            Optional<Patient> dbPatient = patientRepository.findByUserId(TEST_USER_ID);
-            assertTrue(dbPatient.isPresent(), "Patient should exist in database");
-            assertEquals(foundPatient.getId(), dbPatient.get().getId(), "IDs should match");
-            
-            // Test passed
-            testPassed = true;
-            
-        } catch (AssertionError e) {
-            // For assertion errors, just rethrow
-            throw e;
-        } catch (Exception e) {
-            // For any other exceptions, log and track
-            System.err.println("Test failed with exception: " + e.getMessage());
-            testException = e;
-            throw e;
-        }
+        // Act
+        PatientDto result = patientService.findByUserId("uuid-patient-1");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockPatientDto, result);
     }
 
     /**
-     * Test Case: TC-PS-003
-     * Goal: Verify error handling when patient profile not found
+     * Testcase 3 `findByUserId_NonExistingUser_ThrowsException`
+     * - Goal: Verify error handling when trying to get a patient profile for a non-existing user.
+     * - Test Case Code/Steps:
+     *   1. Mock patientRepository to return empty Optional when findByUserId is called with "non-existing-user-id".
+     *   2. Call patientService.findByUserId("non-existing-user-id").
+     *   3. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: userId = "non-existing-user-id"
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests error case for profile retrieval when patient doesn't exist.
      */
     @Test
-    @Order(3)
-    @DisplayName("📋 TC-PS-003: Patient Not Found Error")
-    void testFindNonExistentPatient() {
-        try {
-            // Given: No patient exists for this user ID
-            String nonExistentUserId = "non-existent-user-id";
-            when(jwtAuthenticationManager.getUserId()).thenReturn(nonExistentUserId);
-            testInputs.put("nonExistentUserId", nonExistentUserId);
+    void findByUserId_NonExistingUser_ThrowsException() {
+        // Arrange
+        when(patientRepository.findByUserId("non-existing-user-id")).thenReturn(Optional.empty());
 
-            // When/Then: Service should throw exception when patient not found
-            HttpException exception = assertThrows(HttpException.class, 
-                () -> patientService.findByUserId(nonExistentUserId),
-                "Should throw HttpException for non-existent patient");
-            
-            testOutputs.put("exceptionMessage", exception.getMessage());
-            assertEquals(Message.PATIENT_NOT_FOUND.getMessage(), exception.getMessage());
-            
-            // Test passed if we got the expected exception
-            testPassed = true;
-        } catch (AssertionError e) {
-            // For assertion errors, just rethrow
-            throw e;
-        } catch (Exception e) {
-            // For any other exceptions, log and track
-            System.err.println("Test failed with exception: " + e.getMessage());
-            testException = e;
-            throw e;
-        }
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.findByUserId("non-existing-user-id");
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     /**
-     * Test Case: TC-PS-004
-     * Goal: Verify successful update of a patient profile
+     * Testcase 4 `create_NewPatient_Success`
+     * - Goal: Verify a new patient profile can be successfully created for an existing user.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Mock userRepository to return a User entity for the given ID.
+     *   3. Mock patientRepository.save to return a saved patient entity.
+     *   4. Call patientService.create with a valid PatientDto.
+     *   5. Assert the result is not null and patientRepository.save was called.
+     * - Input: PatientDto with user details
+     * - Expected Output: Created PatientDto matching mock data
+     * - Note: Tests happy path for patient profile creation.
      */
     @Test
-    @Order(4)
-    @DisplayName("📋 TC-PS-004: Patient Profile Update")
-    void testUpdatePatient() {
-        try {
-            // Given: A patient exists in the database
-            System.out.println("Setting up JWT authentication with user ID: " + TEST_USER_ID);
-            when(jwtAuthenticationManager.getUserId()).thenReturn(TEST_USER_ID);
-            
-            // Need to create a patient profile first - this will properly set up the bi-directional relationship
-            System.out.println("Creating initial patient...");
-            PatientDto createdPatient = patientService.create(patientDto);
-            System.out.println("Patient created with ID: " + createdPatient.getId());
-            testOutputs.put("initialPatient", createdPatient);
-            
-            // Flush and clear the persistence context to ensure changes are written to the database
-            // and a fresh state will be loaded for subsequent operations
-            entityManager.flush();
-            entityManager.clear();
-            
-            // Debug: Check what's in the database directly
-            System.out.println("DEBUG: Checking database state after patient creation");
-            Optional<Patient> dbPatientAfterCreation = patientRepository.findByUserId(TEST_USER_ID);
-            System.out.println("Patient found in database: " + dbPatientAfterCreation.isPresent());
-            if (dbPatientAfterCreation.isPresent()) {
-                System.out.println("Patient ID: " + dbPatientAfterCreation.get().getId());
-                System.out.println("Patient user ID: " + (dbPatientAfterCreation.get().getUser() != null ? dbPatientAfterCreation.get().getUser().getId() : "null"));
-            }
-            
-            // The problem might be with cached entities, so let's get a fresh copy from the database
-            Optional<User> userWithPatient = userRepository.findById(TEST_USER_ID);
-            assertTrue(userWithPatient.isPresent(), "User should exist");
-            
-            // Debug: Look at the user's state
-            System.out.println("User found in database: " + userWithPatient.isPresent());
-            if (userWithPatient.isPresent()) {
-                System.out.println("User ID: " + userWithPatient.get().getId());
-                System.out.println("User has patient: " + (userWithPatient.get().getPatient() != null));
-                if (userWithPatient.get().getPatient() != null) {
-                    System.out.println("User's patient ID: " + userWithPatient.get().getPatient().getId());
-                }
-            }
-            
-            // When: Update patient information
-            System.out.println("Updating patient profile...");
-            PatientDto updateDto = new PatientDto();
-            updateDto.setId(createdPatient.getId()); // Important: Include the ID of the existing patient
-            updateDto.setAddressLine("999 Updated Street");
-            updateDto.setDistrict(patientDto.getDistrict());  // Keep original value
-            updateDto.setCity("Updated City");
-            updateDto.setInsuranceCode("UPD-789");
-            updateDto.setDateOfBirth(patientDto.getDateOfBirth());  // Keep original value
-            updateDto.setUser(patientDto.getUser());  // Keep original user
-            
-            testInputs.put("updatedPatientDto", updateDto);
-            
-            // Make sure JWT still returns the same user ID
-            when(jwtAuthenticationManager.getUserId()).thenReturn(TEST_USER_ID);
-            
-            // Perform the update
-            PatientDto updatedPatient = patientService.update(updateDto);
-            testOutputs.put("updatedPatient", updatedPatient);
-            
-            // Then: Patient information should be updated
-            assertEquals("999 Updated Street", updatedPatient.getAddressLine());
-            assertEquals("Updated City", updatedPatient.getCity());
-            assertEquals("UPD-789", updatedPatient.getInsuranceCode());
-            
-            // Verify updates in database
-            Optional<Patient> dbPatient = patientRepository.findByUserId(TEST_USER_ID);
-            assertTrue(dbPatient.isPresent(), "Patient should exist in database");
-            assertEquals("999 Updated Street", dbPatient.get().getAddressLine());
-            assertEquals("Updated City", dbPatient.get().getCity());
-            
-            // Test passed
-            testPassed = true;
-        } catch (AssertionError e) {
-            // For assertion errors, just rethrow
-            throw e;
-        } catch (Exception e) {
-            // For any other exceptions, log and track
-            System.err.println("Test failed with exception: " + e.getMessage());
-            testException = e;
-            throw e;
-        }
+    void create_NewPatient_Success() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(mockUser));
+        when(patientRepository.save(any(Patient.class))).thenReturn(mockPatient);
+
+        // Act
+        PatientDto result = patientService.create(mockPatientDto);
+
+        // Assert
+        assertNotNull(result);
+        verify(patientRepository).save(any(Patient.class));
     }
 
     /**
-     * Test Case: TC-PS-005
-     * Goal: Verify error when trying to create duplicate patient profile
+     * Testcase 5 `create_UserNotFound_ThrowsException`
+     * - Goal: Verify creating a patient profile fails if the associated user is not found.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a non-existing user ID.
+     *   2. Mock userRepository to return empty Optional for the given ID.
+     *   3. Call patientService.create with a PatientDto.
+     *   4. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: PatientDto with user details
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests error case for profile creation when user doesn't exist.
      */
     @Test
-    @Order(5)
-    @DisplayName("📋 TC-PS-005: Duplicate Patient Creation Error")
-    void testCreateDuplicatePatient() {
-        try {
-            // Given: A patient already exists
-            System.out.println("Creating initial patient...");
-            PatientDto createdPatient = patientService.create(patientDto);
-            testOutputs.put("initialPatient", createdPatient);
-            
-            // Flush and clear the persistence context 
-            entityManager.flush();
-            entityManager.clear();
-            
-            // When/Then: Attempting to create another profile should fail
-            System.out.println("Attempting to create duplicate patient...");
-            HttpException exception = assertThrows(HttpException.class, 
-                () -> patientService.create(patientDto),
-                "Should throw HttpException for duplicate patient creation");
-            
-            testOutputs.put("exceptionMessage", exception.getMessage());
-            assertEquals(Message.PATIENT_ALREADY_EXISTS.getMessage(), exception.getMessage());
-            
-            // Test passed if we got the expected exception
-            testPassed = true;
-        } catch (AssertionError e) {
-            // For assertion errors, just rethrow
-            throw e;
-        } catch (Exception e) {
-            // For any other exceptions, log and track
-            System.err.println("Test failed with exception: " + e.getMessage());
-            testException = e;
-            throw e;
-        }
+    void create_UserNotFound_ThrowsException() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("non-existing-user");
+        when(userRepository.findById("non-existing-user")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.create(mockPatientDto);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    /**
+     * Testcase 6 `create_PatientAlreadyExists_ThrowsException`
+     * - Goal: Verify creating a patient profile fails if the user already has one.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Create a User entity that already has an associated Patient.
+     *   3. Mock userRepository to return this User entity.
+     *   4. Call patientService.create with a PatientDto.
+     *   5. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: PatientDto with user details
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests business rule that a user can only have one patient profile.
+     */
+    @Test
+    void create_PatientAlreadyExists_ThrowsException() {
+        // Arrange
+        User userWithPatient = new User();
+        userWithPatient.setId("uuid-patient-1");
+        userWithPatient.setPatient(mockPatient); // User already has a patient
+
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(userWithPatient));
+
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.create(mockPatientDto);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    /**
+     * Testcase 7 `update_ExistingPatient_Success`
+     * - Goal: Verify a patient can successfully update their existing profile.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Mock userRepository to return an existing User entity.
+     *   3. Mock patientRepository to return an existing Patient entity.
+     *   4. Mock repositories to return saved entities on save operations.
+     *   5. Update fields in the PatientDto for testing.
+     *   6. Call patientService.update with the modified PatientDto.
+     *   7. Assert result is not null and repository save methods were called.
+     * - Input: Updated PatientDto with modified address and user details
+     * - Expected Output: Updated PatientDto matching mock data
+     * - Note: Tests happy path for patient profile update.
+     */
+    @Test
+    void update_ExistingPatient_Success() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(mockUser));
+        when(patientRepository.findByUserId("uuid-patient-1")).thenReturn(Optional.of(mockPatient));
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+        when(patientRepository.save(any(Patient.class))).thenReturn(mockPatient);
+
+        // Update some fields in DTO
+        mockPatientDto.setAddressLine("456 Updated St");
+        mockPatientDto.setDistrict("New District");
+        mockUserDto.setFullName("Alice Smith Updated");
+
+        // Act
+        PatientDto result = patientService.update(mockPatientDto);
+
+        // Assert
+        assertNotNull(result);
+        verify(patientMapper).merge(any(Patient.class), eq(mockPatientDto));
+        verify(patientRepository).save(any(Patient.class));
+        verify(userRepository).save(any(User.class));
+    }
+
+    /**
+     * Testcase 8 `update_UserNotFound_ThrowsException`
+     * - Goal: Verify updating a patient profile fails if the associated user is not found.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a non-existing user ID.
+     *   2. Mock userRepository to return empty Optional for the given ID.
+     *   3. Call patientService.update with a PatientDto.
+     *   4. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: PatientDto with user details
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests error case for profile update when user doesn't exist.
+     */
+    @Test
+    void update_UserNotFound_ThrowsException() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("non-existing-user");
+        when(userRepository.findById("non-existing-user")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.update(mockPatientDto);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    /**
+     * Testcase 9 `update_PatientNotExists_ThrowsException`
+     * - Goal: Verify updating a profile fails if the patient profile does not exist yet.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Create a User entity that has no associated Patient.
+     *   3. Mock userRepository to return this User entity.
+     *   4. Call patientService.update with a PatientDto.
+     *   5. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: PatientDto with user details
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests error case where user exists but no patient profile has been created yet.
+     */
+    @Test
+    void update_PatientNotExists_ThrowsException() {
+        // Arrange
+        User userWithoutPatient = new User();
+        userWithoutPatient.setId("uuid-patient-1");
+        userWithoutPatient.setPatient(null); // User doesn't have a patient yet
+
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(userWithoutPatient));
+
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.update(mockPatientDto);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    /**
+     * Testcase 10 `update_PatientNotFoundForUser_ThrowsException`
+     * - Goal: Verify updating a profile fails if the patient profile cannot be found in the repository.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Mock userRepository to return an existing User entity.
+     *   3. Mock patientRepository to return empty Optional when findByUserId is called.
+     *   4. Call patientService.update with a PatientDto.
+     *   5. Assert that HttpException is thrown with BAD_REQUEST status.
+     * - Input: PatientDto with user details
+     * - Expected Output: HttpException with BAD_REQUEST status
+     * - Note: Tests repository error case where user exists but patient profile can't be found.
+     */
+    @Test
+    void update_PatientNotFoundForUser_ThrowsException() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(mockUser));
+        when(patientRepository.findByUserId("uuid-patient-1")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        HttpException exception = assertThrows(HttpException.class, () -> {
+            patientService.update(mockPatientDto);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    /**
+     * Testcase 11 `update_UserDataUpdated_Success`
+     * - Goal: Verify user details are correctly updated when updating a patient profile.
+     * - Test Case Code/Steps:
+     *   1. Mock JWT authentication to return a valid user ID.
+     *   2. Mock repositories to return existing entities and saved entities.
+     *   3. Update user data in the PatientDto (fullName, age, phone).
+     *   4. Call patientService.update with the modified PatientDto.
+     *   5. Capture the User entity passed to userRepository.save.
+     *   6. Assert the captured User has the expected updated values.
+     * - Input: PatientDto with updated user details (fullName="New Name", age=35, phone="555-2222")
+     * - Expected Output: User entity updated with new values
+     * - Note: Tests that user data is properly synchronized when updating patient profile.
+     */
+    @Test
+    void update_UserDataUpdated_Success() {
+        // Arrange
+        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-patient-1");
+        when(userRepository.findById("uuid-patient-1")).thenReturn(Optional.of(mockUser));
+        when(patientRepository.findByUserId("uuid-patient-1")).thenReturn(Optional.of(mockPatient));
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+        when(patientRepository.save(any(Patient.class))).thenReturn(mockPatient);
+
+        // Update user data in DTO
+        mockUserDto.setFullName("New Name");
+        mockUserDto.setAge(35);
+        mockUserDto.setPhone("555-2222");
+
+        // Act
+        patientService.update(mockPatientDto);
+
+        // Assert
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        
+        User capturedUser = userCaptor.getValue();
+        assertEquals("New Name", capturedUser.getFullName());
+        assertEquals(Integer.valueOf(35), capturedUser.getAge());
+        assertEquals("555-2222", capturedUser.getPhone());
     }
 } 
