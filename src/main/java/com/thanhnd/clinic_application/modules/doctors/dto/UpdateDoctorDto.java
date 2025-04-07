@@ -17,10 +17,10 @@ public class UpdateDoctorDto {
 	@NotBlank(message = ValidationMessage.DOCTOR_DEGREE_REQUIRED)
 	private String degree;
 
-	@NotBlank(message = ValidationMessage.DOCTOR_NUMBER_OF_PATIENTS_REQUIRED)
+	@NotNull(message = ValidationMessage.DOCTOR_NUMBER_OF_PATIENTS_REQUIRED)
 	private Integer numberOfPatients;
 
-	@NotBlank(message = ValidationMessage.DOCTOR_NUMBER_OF_CERTIFICATES_REQUIRED)
+	@NotNull(message = ValidationMessage.DOCTOR_NUMBER_OF_CERTIFICATES_REQUIRED)
 	private Integer numberOfCertificates;
 
 	@NotBlank(message = ValidationMessage.DOCTOR_DESCRIPTION_REQUIRED)
