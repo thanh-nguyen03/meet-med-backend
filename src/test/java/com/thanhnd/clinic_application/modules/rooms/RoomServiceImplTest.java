@@ -43,11 +43,7 @@ import org.slf4j.LoggerFactory;
 @ActiveProfiles("test")
 @Tag("service")
 class RoomServiceImplTest {
-    /**
-     * TC_RS_01: Ensure that findAll() method returns correct list of RoomDto
-     * Input: List of Room entities with IDs "R001", "R002"
-     * Expected Output: List of RoomDto with same IDs
-     */
+
     @Autowired
     private RoomRepository roomRepository;
 
