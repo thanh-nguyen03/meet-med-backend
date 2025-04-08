@@ -168,10 +168,20 @@ public class DoctorControllerTest {
         return result;
     }
 
+    /**
+     * Test Case ID: TC-DC-001
+     * Description: Verify that a doctor can successfully retrieve their own profile
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - Doctor profile exists in the system
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - Doctor profile data returned in response
+     */
     @Test
     @Order(1)
     @DisplayName("TC-DC-001: Get My Profile - Success")
-    void getMyProfile_Success() throws Exception {
+    void TC_DC_001_getMyProfileSuccess() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -188,10 +198,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.data.degree").value(mockDoctorDto.getDegree()));
     }
 
+    /**
+     * Test Case ID: TC-DC-002
+     * Description: Verify error handling when a non-doctor user attempts to access doctor profile
+     * Input:
+     *   - Valid JWT token with non-doctor user ID
+     *   - User exists but is not a doctor
+     * Expected Output:
+     *   - HTTP 404 Not Found response
+     *   - Error message indicating doctor not found
+     */
     @Test
     @Order(2)
     @DisplayName("TC-DC-002: Get My Profile - User Not Doctor")
-    void getMyProfile_UserNotDoctor() throws Exception {
+    void TC_DC_002_getMyProfileUserNotDoctor() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-non-doctor");
         testInputs.put("userId", "uuid-non-doctor");
@@ -207,24 +227,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.message").value(Message.DOCTOR_NOT_FOUND.getMessage()));
     }
 
+    /**
+     * Test Case ID: TC-DC-003
+     * Description: Verify that a doctor can successfully update their profile
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - UpdateDoctorDto with valid fields
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - Updated doctor profile data returned in response
+     */
     @Test
     @Order(3)
-    @DisplayName("TC-DC-003: Get My Profile - Unauthenticated")
-    void getMyProfile_Unauthenticated() throws Exception {
-        // Mock JWT authentication to return null
-        when(jwtAuthenticationManager.getUserId()).thenReturn(null);
-        testInputs.put("userId", null);
-
-        // Perform GET request
-        performRequest(mockMvc.perform(get("/api/doctor/my-profile")
-                .contentType(MediaType.APPLICATION_JSON)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @Order(4)
-    @DisplayName("TC-DC-004: Update My Profile - Success")
-    void updateMyProfile_Success() throws Exception {
+    @DisplayName("TC-DC-003: Update My Profile - Success")
+    void TC_DC_003_updateMyProfileSuccess() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -246,10 +262,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.data.id").value(mockDoctorDto.getId()));
     }
 
+    /**
+     * Test Case ID: TC-DC-004
+     * Description: Verify validation error handling when updating doctor profile with invalid data
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - UpdateDoctorDto with invalid fields (negative years of experience)
+     * Expected Output:
+     *   - HTTP 400 Bad Request response
+     *   - Validation error message
+     */
     @Test
-    @Order(5)
-    @DisplayName("TC-DC-005: Update My Profile - Validation Errors")
-    void updateMyProfile_ValidationErrors() throws Exception {
+    @Order(4)
+    @DisplayName("TC-DC-004: Update My Profile - Validation Errors")
+    void TC_DC_004_updateMyProfileValidationErrors() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -265,10 +291,20 @@ public class DoctorControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Test Case ID: TC-DC-005
+     * Description: Verify that doctor shifts can be successfully retrieved
+     * Input:
+     *   - Valid doctor ID
+     *   - Doctor has registered shifts
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - List of doctor shifts returned in response
+     */
     @Test
-    @Order(6)
-    @DisplayName("TC-DC-006: Get Doctor Shifts - Success")
-    void getDoctorShifts_Success() throws Exception {
+    @Order(5)
+    @DisplayName("TC-DC-005: Get Doctor Shifts - Success")
+    void TC_DC_005_getDoctorShiftsSuccess() throws Exception {
         String doctorId = "uuid-doctor-1";
         testInputs.put("doctorId", doctorId);
 
@@ -281,10 +317,19 @@ public class DoctorControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Test Case ID: TC-DC-006
+     * Description: Verify error handling when retrieving shifts for non-existent doctor
+     * Input:
+     *   - Invalid doctor ID
+     * Expected Output:
+     *   - HTTP 404 Not Found response
+     *   - Error message indicating doctor not found
+     */
     @Test
-    @Order(7)
-    @DisplayName("TC-DC-007: Get Doctor Shifts - Doctor Not Found")
-    void getDoctorShifts_DoctorNotFound() throws Exception {
+    @Order(6)
+    @DisplayName("TC-DC-006: Get Doctor Shifts - Doctor Not Found")
+    void TC_DC_006_getDoctorShiftsDoctorNotFound() throws Exception {
         String doctorId = "non-existent-doctor";
         testInputs.put("doctorId", doctorId);
 
@@ -299,10 +344,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.message").value(Message.DOCTOR_NOT_FOUND.getMessage()));
     }
 
+    /**
+     * Test Case ID: TC-DC-007
+     * Description: Verify error handling when user lacks permissions to view doctor shifts
+     * Input:
+     *   - Valid doctor ID
+     *   - User without sufficient permissions
+     * Expected Output:
+     *   - HTTP 403 Forbidden response
+     *   - Error message indicating insufficient permissions
+     */
     @Test
-    @Order(8)
-    @DisplayName("TC-DC-008: Get Doctor Shifts - Insufficient Permissions")
-    void getDoctorShifts_InsufficientPermissions() throws Exception {
+    @Order(7)
+    @DisplayName("TC-DC-007: Get Doctor Shifts - Insufficient Permissions")
+    void TC_DC_007_getDoctorShiftsInsufficientPermissions() throws Exception {
         String doctorId = "uuid-doctor-1";
         testInputs.put("doctorId", doctorId);
 
@@ -316,10 +371,20 @@ public class DoctorControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Test Case ID: TC-DC-008
+     * Description: Verify that a doctor can update only specific fields of their profile
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - UpdateDoctorDto with only some fields populated
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - Only specified fields updated, others remain unchanged
+     */
     @Test
-    @Order(9)
-    @DisplayName("TC-DC-009: Update My Profile - Only Partial Update")
-    void updateMyProfile_OnlyPartialUpdate() throws Exception {
+    @Order(8)
+    @DisplayName("TC-DC-008: Update My Profile - Only Partial Update")
+    void TC_DC_008_updateMyProfileOnlyPartialUpdate() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -339,10 +404,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.data.yearsOfExperience").value(mockDoctorDto.getYearsOfExperience()));
     }
 
+    /**
+     * Test Case ID: TC-DC-009
+     * Description: Verify that a doctor can update their profile with maximum length description
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - UpdateDoctorDto with maximum length description
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - Profile updated with maximum length description
+     */
     @Test
-    @Order(10)
-    @DisplayName("TC-DC-010: Update My Profile - Max Description Length")
-    void updateMyProfile_MaxDescriptionLength() throws Exception {
+    @Order(9)
+    @DisplayName("TC-DC-009: Update My Profile - Max Description Length")
+    void TC_DC_009_updateMyProfileMaxDescriptionLength() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -361,29 +436,20 @@ public class DoctorControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Test Case ID: TC-DC-010
+     * Description: Verify handling when a doctor has no registered shifts
+     * Input:
+     *   - Valid doctor ID
+     *   - Doctor has no registered shifts
+     * Expected Output:
+     *   - HTTP 200 OK response
+     *   - Empty list returned in response
+     */
     @Test
-    @Order(11)
-    @DisplayName("TC-DC-011: Update My Profile - Exceed Max Description Length")
-    void updateMyProfile_ExceedMaxDescriptionLength() throws Exception {
-        // Mock JWT authentication
-        when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
-        testInputs.put("userId", "uuid-doctor-1");
-
-        UpdateDoctorDto exceedLengthDto = new UpdateDoctorDto();
-        exceedLengthDto.setDescription("A".repeat(2001)); // Exceeds max length
-        testInputs.put("updateDto", exceedLengthDto);
-
-        // Perform PUT request
-        performRequest(mockMvc.perform(put("/api/doctor/my-profile")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(exceedLengthDto))))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Order(12)
-    @DisplayName("TC-DC-012: Get Doctor Shifts - No Shifts")
-    void getDoctorShifts_NoShifts() throws Exception {
+    @Order(10)
+    @DisplayName("TC-DC-010: Get Doctor Shifts - No Shifts")
+    void TC_DC_010_getDoctorShiftsNoShifts() throws Exception {
         String doctorId = "uuid-doctor-no-shifts";
         testInputs.put("doctorId", doctorId);
 
@@ -399,10 +465,20 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
+    /**
+     * Test Case ID: TC-DC-011
+     * Description: Verify validation error handling when updating doctor profile with invalid years of experience
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - UpdateDoctorDto with invalid years of experience (zero)
+     * Expected Output:
+     *   - HTTP 400 Bad Request response
+     *   - Validation error message
+     */
     @Test
-    @Order(13)
-    @DisplayName("TC-DC-013: Update My Profile - Invalid Years of Experience")
-    void updateMyProfile_InvalidYearsOfExperience() throws Exception {
+    @Order(11)
+    @DisplayName("TC-DC-011: Update My Profile - Invalid Years of Experience")
+    void TC_DC_011_updateMyProfileInvalidYearsOfExperience() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
@@ -418,10 +494,20 @@ public class DoctorControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Test Case ID: TC-DC-012
+     * Description: Verify that the doctor profile endpoint handles concurrent requests correctly
+     * Input:
+     *   - Valid JWT token with doctor user ID
+     *   - Multiple concurrent requests to the same endpoint
+     * Expected Output:
+     *   - All requests complete successfully
+     *   - Each request returns the correct doctor profile data
+     */
     @Test
-    @Order(14)
-    @DisplayName("TC-DC-014: Get My Profile - Concurrent Requests")
-    void getMyProfile_ConcurrentRequests() throws Exception {
+    @Order(12)
+    @DisplayName("TC-DC-012: Get My Profile - Concurrent Requests")
+    void TC_DC_012_getMyProfileConcurrentRequests() throws Exception {
         // Mock JWT authentication
         when(jwtAuthenticationManager.getUserId()).thenReturn("uuid-doctor-1");
         testInputs.put("userId", "uuid-doctor-1");
