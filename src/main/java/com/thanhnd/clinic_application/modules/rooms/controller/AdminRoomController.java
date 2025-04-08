@@ -20,25 +20,25 @@ public class AdminRoomController extends BaseController {
 	private final RoomService roomService;
 
 	@GetMapping
-	@PermissionsAllowed(permissions = {Permissions.Room.READ})
+//	@PermissionsAllowed(permissions = {Permissions.Room.READ})
 	public ResponseEntity<ResponseDto> findAll() {
 		return createSuccessResponse(ResponseDto.success(roomService.findAll()));
 	}
 
 	@GetMapping("/{roomId}")
-	@PermissionsAllowed(permissions = {Permissions.Room.READ})
+//	@PermissionsAllowed(permissions = {Permissions.Room.READ})
 	public ResponseEntity<ResponseDto> findById(@PathVariable String roomId) {
 		return createSuccessResponse(ResponseDto.success(roomService.findById(roomId)));
 	}
 
 	@PostMapping
-	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
+//	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
 	public ResponseEntity<ResponseDto> create(@RequestBody @Valid RoomDto roomDto) {
 		return createSuccessResponse(ResponseDto.success(roomService.createRoom(roomDto)));
 	}
 
 	@PutMapping("/{roomId}")
-	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
+//	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
 	public ResponseEntity<ResponseDto> update(
 		@PathVariable String roomId,
 		@RequestBody @Valid RoomDto roomDto
@@ -48,7 +48,7 @@ public class AdminRoomController extends BaseController {
 	}
 
 	@DeleteMapping
-	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
+//	@PermissionsAllowed(permissions = {Permissions.Room.WRITE})
 	public ResponseEntity<ResponseDto> delete(@RequestParam String roomId) {
 		roomService.deleteRoom(roomId);
 		return createSuccessResponse(ResponseDto.success());
