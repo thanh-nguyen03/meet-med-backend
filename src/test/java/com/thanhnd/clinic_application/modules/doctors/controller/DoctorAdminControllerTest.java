@@ -599,7 +599,7 @@ public class DoctorAdminControllerTest {
     }
 
     /**
-     * Test Case ID: TC-DAC-013
+     * Test Case ID: TC-DAC-012
      * Description: Verify that a 403 error is returned when accessing an endpoint without sufficient permissions
      * Input: 
      *   - doctorId: "doctor123"
@@ -608,10 +608,10 @@ public class DoctorAdminControllerTest {
      *   - Status: 403 Forbidden
      */
     @Test
-    @Order(13)
+    @Order(12)
     @WithMockUser(username = "user123")
-    @DisplayName("TC-DAC-013: Unauthorized Access")
-    void TC_DAC_013_unauthorized_Access() throws Exception {
+    @DisplayName("TC-DAC-012: Unauthorized Access")
+    void TC_DAC_012_unauthorized_Access() throws Exception {
         // Arrange
         setPermissions(List.of("read:doctors")); // Only read permission, no write permission
         
@@ -631,7 +631,7 @@ public class DoctorAdminControllerTest {
     }
 
     /**
-     * Test Case ID: TC-DAC-014
+     * Test Case ID: TC-DAC-013
      * Description: Verify that a doctor is created in both the database and the identity provider
      * Input: 
      *   - CreateDoctorDto with identityProvider set to "auth0"
@@ -641,10 +641,10 @@ public class DoctorAdminControllerTest {
      *   - Identity provider strategy is called to create user
      */
     @Test
-    @Order(14)
+    @Order(13)
     @WithMockUser(username = "user123")
-    @DisplayName("TC-DAC-014: Create Doctor - Identity Provider Integration")
-    void TC_DAC_014_create_IdentityProviderIntegration() throws Exception {
+    @DisplayName("TC-DAC-013: Create Doctor - Identity Provider Integration")
+    void TC_DAC_013_create_IdentityProviderIntegration() throws Exception {
         // Arrange
         setPermissions(List.of("write:doctors"));
         
@@ -674,7 +674,7 @@ public class DoctorAdminControllerTest {
     }
 
     /**
-     * Test Case ID: TC-DAC-015
+     * Test Case ID: TC-DAC-014
      * Description: Verify that a doctor is deleted from both the database and the identity provider
      * Input: 
      *   - doctorId: "doctor123"
@@ -685,10 +685,10 @@ public class DoctorAdminControllerTest {
      *   - Identity provider strategy is called to delete user
      */
     @Test
-    @Order(15)
+    @Order(14)
     @WithMockUser(username = "user123")
-    @DisplayName("TC-DAC-015: Delete Doctor - Identity Provider Integration")
-    void TC_DAC_015_delete_IdentityProviderIntegration() throws Exception {
+    @DisplayName("TC-DAC-014: Delete Doctor - Identity Provider Integration")
+    void TC_DAC_014_delete_IdentityProviderIntegration() throws Exception {
         // Arrange
         setPermissions(List.of("write:doctors", "delete:users"));
         
@@ -720,6 +720,56 @@ public class DoctorAdminControllerTest {
                 .andExpect(status().isOk());
 
         verify(mockStrategy, times(1)).deleteUser(identityProviderUserId);
+    }
+
+    /**
+     * Test Case ID: TC-DAC-015
+     * Description: Verify that a doctor's user information can be updated
+     * Input: 
+     *   - doctorId: "doctor123"
+     *   - UpdateDoctorDto with updated user information
+     *   - permissions: ["write:doctors"]
+     * Expected Output: 
+     *   - Status: 200 OK
+     *   - Response contains updated user information
+     */
+    @Test
+    @Order(15)
+    @WithMockUser(username = "user123")
+    @DisplayName("TC-DAC-015: Update Doctor - User Information Update")
+    void TC_DAC_015_update_UserInformation() throws Exception {
+        // Arrange
+        setPermissions(List.of("write:doctors"));
+        
+        String doctorId = "doctor123";
+        UpdateDoctorDto updateDto = new UpdateDoctorDto();
+        UserDto userDto = new UserDto();
+        userDto.setFullName("New Name");
+        userDto.setPhone("1234567890");
+        updateDto.setUser(userDto);
+        updateDto.setYearsOfExperience(6);
+        updateDto.setDegree("MD");
+        updateDto.setNumberOfPatients(100);
+        updateDto.setNumberOfCertificates(5);
+        updateDto.setDescription("Updated description");
+        testInputs.put("updateDto", updateDto);
+        
+        DoctorDto responseDto = new DoctorDto();
+        responseDto.setId(doctorId);
+        UserDto responseUserDto = new UserDto();
+        responseUserDto.setFullName("New Name");
+        responseDto.setUser(responseUserDto);
+        testInputs.put("responseDto", responseDto);
+        
+        when(doctorService.update(eq(doctorId), any())).thenReturn(responseDto);
+
+        // Act & Assert
+        performRequest(mockMvc.perform(put("/api/admin/doctor/{id}", doctorId)
+                .header("Authorization", "Bearer test-token-user123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.fullName").value("New Name"));
     }
 
     /**
@@ -924,7 +974,7 @@ public class DoctorAdminControllerTest {
     }
 
     /**
-     * Test Case ID: TC-DAC-024
+     * Test Case ID: TC-DAC-022
      * Description: Verify that empty permissions are rejected
      * Input: 
      *   - doctorId: "doctor123"
@@ -933,10 +983,10 @@ public class DoctorAdminControllerTest {
      *   - Status: 403 Forbidden
      */
     @Test
-    @Order(24)
+    @Order(22)
     @WithMockUser(username = "user123")
-    @DisplayName("TC-DAC-024: Authorization - Empty Permissions")
-    void TC_DAC_024_Authorization_EmptyPermissions() throws Exception {
+    @DisplayName("TC-DAC-022: Authorization - Empty Permissions")
+    void TC_DAC_022_Authorization_EmptyPermissions() throws Exception {
         // Arrange
         String doctorId = "doctor123";
         setPermissions(List.of()); // Empty permissions list
