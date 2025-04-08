@@ -527,6 +527,145 @@ public class NotificationServiceImplTest {
         });
     }
 
+    /**
+     * TC_NS_013: Test updateAllStatus() when no OPEN notifications exist.
+     * Test Objective: Verify no updates happen and no exceptions are thrown when there are no OPEN notifications.
+     * Input: Receiver with no OPEN notifications, new status = READ.
+     * Expected Output: No updates; status remains unchanged for all notifications.
+     */
+    @Test
+    @Transactional
+    void updateAllStatus_noOpenNotifications_noUpdateOccurs() {
+        String receiverId = "userNoOpen";
+        NotificationStatus initialStatus = NotificationStatus.READ;
+
+        // Send a READ notification (no OPEN)
+        NotificationDto dto = new NotificationDto();
+        dto.setTitle("Read Notification");
+        dto.setContent("Content");
+        dto.setReceiverId(receiverId);
+        dto.setObjectData("Data");
+        dto.setStatus(initialStatus);  // Not OPEN
+        dto.setType(NotificationType.APPOINTMENT_REMINDER);
+
+        notificationService.sendNotifications(List.of(receiverId), dto);
+        System.out.println("Sent one READ notification to userNoOpen");
+
+        // Execute updateAllStatus
+        System.out.println("Calling updateAllStatus() for userNoOpen with status READ");
+        notificationService.updateAllStatus(receiverId, NotificationStatus.READ);
+
+        // Fetch notifications with status READ
+        List<Notification> readNotifications = notificationRepository
+                .findAllByReceiverIdAndStatusEquals(receiverId, NotificationStatus.READ);
+        System.out.printf("Fetched %d READ notifications after updateAllStatus()\n", readNotifications.size());
+
+        assertEquals(1, readNotifications.size(), "Expected one READ notification unchanged.");
+        assertEquals(initialStatus, readNotifications.get(0).getStatus(), "Expected status to remain READ.");
+    }
+
+
+    /**
+     * TC_NS_014: Test updateAllStatus() with same status (OPEN -> OPEN).
+     * Test Objective: Ensure status update to the same status has no side effects.
+     * Input: Receiver with OPEN notifications, status = OPEN.
+     * Expected Output: Status remains OPEN, but update logic still runs.
+     */
+    @Test
+    @Transactional
+    void updateAllStatus_sameStatus_noChangeButNoError() {
+        String receiverId = "userOpenToOpen";
+        NotificationStatus status = NotificationStatus.OPEN;
+
+        // Create and send an OPEN notification
+        NotificationDto dto = new NotificationDto();
+        dto.setTitle("Open Notification");
+        dto.setContent("Test");
+        dto.setReceiverId(receiverId);
+        dto.setObjectData("Data");
+        dto.setStatus(NotificationStatus.OPEN);  // Initial status
+        dto.setType(NotificationType.CANCEL_APPOINTMENT_SUCCESS);
+
+        System.out.println("Sending one OPEN notification to receiver: " + receiverId);
+        notificationService.sendNotifications(List.of(receiverId), dto);
+
+        // Fetch before update
+        List<Notification> beforeUpdate = notificationRepository
+                .findAllByReceiverIdAndStatusEquals(receiverId, NotificationStatus.OPEN);
+        System.out.println("Before updateAllStatus(): Found " + beforeUpdate.size() + " OPEN notifications.");
+
+        // Call updateAllStatus with the same status
+        System.out.println("Calling updateAllStatus() with same status: OPEN -> OPEN");
+        notificationService.updateAllStatus(receiverId, NotificationStatus.OPEN);
+
+        // Fetch after update
+        List<Notification> afterUpdate = notificationRepository
+                .findAllByReceiverIdAndStatusEquals(receiverId, NotificationStatus.OPEN);
+        System.out.println("After updateAllStatus(): Found " + afterUpdate.size() + " OPEN notifications.");
+        if (!afterUpdate.isEmpty()) {
+            System.out.println("First notification status: " + afterUpdate.get(0).getStatus());
+        }
+
+        // Assertions
+        assertEquals(1, afterUpdate.size(), "Expected one OPEN notification unchanged.");
+        assertEquals(NotificationStatus.OPEN, afterUpdate.get(0).getStatus());
+    }
+
+    /**
+     * TC_NS_015: Test getSocketIONameRooms() with normal userId.
+     * Input: "user123"
+     * Expected: ["room_user123"]
+     */
+    @Test
+    void getSocketIONameRooms_validUserId_returnsCorrectRoom() {
+        String userId = "user123";
+        List<String> result = notificationService.getSocketIONameRooms(userId);
+
+        System.out.println("Rooms for userId 'user123': " + result);
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).contains(userId));
+    }
+
+    /**
+     * TC_NS_016: Test getSocketIONameRooms() with empty userId.
+     * Input: ""
+     * Expected: ["room_"] or similar behavior depending on helper logic
+     */
+    @Test
+    void getSocketIONameRooms_emptyUserId_returnsRoomWithEmptySuffix() {
+        String userId = "";
+        List<String> result = notificationService.getSocketIONameRooms(userId);
+
+        System.out.println("Rooms for empty userId: " + result);
+        assertEquals(1, result.size());
+
+        // Print actual room name for debugging
+        String roomName = result.get(0);
+        System.out.println("Room name: " + roomName);
+
+        // Adjust this depending on expected logic
+        assertEquals("NOTIFICATION_", roomName);
+    }
+
+    /**
+     * TC_NS_017: Test getSocketIONameRooms() with null userId.
+     * Input: null
+     * Expected: Should handle gracefully or throw a clear exception (based on implementation)
+     */
+    @Test
+    void getSocketIONameRooms_nullUserId_handlesGracefullyOrFailsClearly() {
+        String userId = null;
+
+        try {
+            List<String> result = notificationService.getSocketIONameRooms(userId);
+            System.out.println("Rooms for null userId: " + result);
+            assertNotNull(result);
+            assertEquals(1, result.size());
+        } catch (Exception e) {
+            System.out.println("Exception for null userId: " + e.getMessage());
+            assertTrue(e instanceof NullPointerException || e instanceof IllegalArgumentException);
+        }
+    }
 
 
 }
